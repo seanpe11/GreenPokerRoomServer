@@ -31,7 +31,7 @@ let Player = class {
     name = "";
     stack = 100;
     hand = [];
-    best = [];
+    best = []; // best 5 cards
     constructor(name, startingStack){
         this.name = name;
         this.stack = startingStack;
@@ -39,26 +39,30 @@ let Player = class {
 }
 
 let Yeehaw = class {
-    deck = [];
+    deck = []; // deck of cards, drawing without replacement
+    board = []; // board of cards, numbers only
+    phase = 0; // betting phase
     handTypeNames = ['HIGH_CARD', 'PAIR', 'TWO_PAIR', 'THREE_OF_A_KIND', 'STRAIGHT', 'FLUSH', 'FULL_HOUSE', 'FOUR_OF_A_KIND', 'STRAIGHT_FLUSH'];
     betPhases = ['Pre-Flop', 'Flop', 'Turn', 'River'];
-    phase = 0;
+    
 
     // cards are represented as int 1-13 for the card value, 0-3 for suits
 
     constructor(arrPlayers, sb, bb){
         this.players = arrPlayers; //will be 2d array with card objects
-        this.sb = smallblind; 
-        this.bb = bigblind;
+        this.sb = sb; 
+        this.bb = bb;
         // indexes of player with designation
         this.button = 0; 
         this.smallblind = (this.button + 1) % this.players.length; // make sure it loops around
         this.bigblind = (this.smallblind + 1) % this.players.length;
-        this.currentTurn = (this.bigblind + 1) % this.players.length;
+        this.underthegun = (this.bigblind + 1) % this.players.length;
+        this.toact = this.underthegun;
+        this.lastbet = this.bigblind; // when betting reaches this person, round of betting ends
         // values for each turn
         this.pot = this.sb + this.bb;
         this.currentBet = this.bb;
-        this.notfolded = [...Array(this.players.length).keys()];// players not folded
+        this.notfolded = [...Array(this.players.length).keys()];// index of players not folded
     }
 
     get smallblind_json(){
@@ -74,77 +78,129 @@ let Yeehaw = class {
         return this.betPhases[this.phase];
     }
 
-    // function after showdown
-    newRound(){
-        this.phase = 0;
-        this.board = [];
-        this.playerHands = [];
-        this.button++;
-        this.button = this.button % this.players.length; // make sure it loops around
-        this.smallblind = (this.button + 1) % this.players.length;
-        this.bigblind = (this.smallblind + 1) % this.players.length;
-        this.currentTurn = (this.bigblind + 1) % this.players.length;
-        this.pot = this.sb + this.bb;
-        this.notfolded = [...Array(this.players.length).keys()];
-    }
-
-    // for next player action
-    nextturn() {
-        this.currentTurn++;
-        this.currentTurn % this.players.length;
-        // set condition to start next phase
-        if (somethign){
-            nextphase();
-        }
-    }
-
-    // for next betting phase (pre-flop, flop, turn, river, showdown)
-    nextphase() {
-        this.phase++;
-    }
-
-    // player actions
+    // player actions: returns string whether 
+    // action is a json object with the following properties
+    // ----- playerIndex: index of player who made action
+    // ----- value: bet value of action
+    // ----- action: str of what player did
     playerAction(action){
-        if (action.playerIndex != this.currentTurn) { return "INVALID PLAYER" };
+        if (action.playerIndex != this.toact) { return { result: "INVALID PLAYER", isValid: false } };
 
         switch(action.action){
-            case "BET":
+            case "CHECK":
+                if(action.playerIndex == this.bigblind && this.currentBet == this.bb){ 
+                    this.nextturn();
+                    return { result: "CHECK", isValid: true };
+                } else if (this.currentBet == 0) {
+                    this.nextturn();
+                    return { result: "CHECK", isValid: true };
+                } else {
+                    return { result: "INVALID CHECK", isValid: false };
+                }
+
+            case "CALL":
+                if (action.value == this.currentBet){
+                    this.players[action.playerIndex].stack -= this.currentBet;
+                    this.nextturn();
+                    return { result: "CALL", isValid: true };
+                } else if (action.value >= this.players[action.playerIndex].stack){
+                    this.players[action.playerIndex].stack = 0; // player's bet makes him go all in
+                    this.nextturn();
+                    return { result: "FORCED ALL IN", isValid: true };
+                } else {
+                    return { result: "INVALID CALL", isValid: false };
+                }
+
+            case "RAISE":
                 if(action.value > this.currentBet){
                     if (action.value >= this.players[action.playerIndex].stack){
                         this.players[action.playerIndex].stack = 0; // player's bet makes him go all in
                         this.currentBet = action.value;
                         this.nextturn();
-                        return "ALL IN";
-                    } else {
+                        return { result: "ALL IN", isValid: true };
+                    } else if (action.value >= this.currentBet + this.bb) {
                         this.players[action.playerIndex].stack -= action.value; // deduct bet from player stack
                         this.nextturn();
-                        return "BET";
-                    }
+                        return { result: "RAISE", isValid: true };
+                    } 
                 } else {
-                    return "INVALID BET";
+                    return { result: "INVALID RAISE", isValid: true };
                 }
-            case "CHECK":
-                if(action.playerIndex == this.bigblind && this.currentBet == this.bb){
-                    this.nextturn();
-                } else if (this.currentBet == 0) {
-                    this.nextturn();
-                } else {
-                    return "INVALID CHECK";
-                }
+
             case "FOLD":
-                this.notfolded = this.notfolded.filter((value) ) // remove player from notfolded
+                let remove = this.notfolded.indexOf(playerIndex);
+                if (remove == -1){
+                    return { result: "INVALID FOLD", isValid: false };
+                } 
+                this.notfolded.splice(remove, 1);
+                this.nextturn();
+                return { result: "FOLD", isValid: true };
+
+            default:
+                return { result: "INVALID ACTION", isValid: true };
         }
     }
 
-    showdown(){
-        
+
+    // function after showdown
+    newRound(){
+        this.phase = 0;
+        this.board = [];
+        this.button++;
+        this.button = this.button % this.players.length; // make sure it loops around
+        this.smallblind = (this.button + 1) % this.players.length;
+        this.bigblind = (this.smallblind + 1) % this.players.length;
+        this.underthegun = (this.bigblind + 1) % this.players.length;
+        this.toact = this.underthegun;
+        this.pot = this.sb + this.bb;
+        this.players[this.smallblind].stack -= this.sb; 
+        if (this.players[this.smallblind].stack > 0){
+            this.players[this.smallblind].stack = 0; // forced all-in cause of small blind
+        }
+        this.players[this.bigblind].stack -= this.bb;
+        if (this.players[this.bigblind].stack > 0){
+            this.players[this.bigblind].stack = 0; // forced all-in cause of big blind
+        }
+        this.currentBet = this.bb;
+        this.notfolded = [...Array(this.players.length).keys()]; // first round, so all players not folded
+        this.deal();
     }
 
+    // for next player action
+    nextturn() {
+        this.toact++;
+        this.toact % this.notfolded.length;
+        // set condition when betting ends
+        if (this.toact == this.lastbet){ // if lastbet goes back around
+            nextphase();
+        }
+    }
+
+    // for next betting phase (pre-flop, flop, turn, river, showdown), condition for each
+    nextphase() {
+        this.phase++;
+        switch (phase){
+            case 1:
+                this.flop(); // 3 cards to board
+                break;
+            case 2:
+                this.turn(); // 1 card to board
+                break;
+            case 3:
+                this.river(); // 1 card to board
+                break;
+            case 4:
+                this.showdown(); // showcards
+                break;
+        }
+    }
+
+    
     deal() {
         this.deck = [];
         let i;
-        for (i=0;i<52;i++){
-            this.deck.push(i+1);
+        for (i=1;i<=52;i++){
+            this.deck.push(i);
         }
         shuffle(this.deck);
         for(i=0;i<this.players.length;i++){
@@ -166,17 +222,37 @@ let Yeehaw = class {
 
             console.log(draw + " " + draw2);
 
-            this.playerHands.push(hand);
+            this.players[i].hand = hand;
         }
     }
 
-    reshuffle() {
-        let i;
-        this.deck = [];
-        for (i=0;i<52;i++){
-            this.deck.push(i+1);
-        }
+    flop(){
+        this.board.push(this.deck.pop()); // too lazy to make this a for loop
+        this.board.push(this.deck.pop());
+        this.board.push(this.deck.pop());
+        this.currentBet = 0;
+        this.toact = this.button + 1; 
     }
+
+    turn(){
+        this.board.push(this.deck.pop());
+        this.currentBet = 0;
+        this.toact = this.button + 1;
+    }
+
+    river(){
+        this.board.push(this.deck.pop());
+        this.currentBet = 0;
+        this.toact = this.button + 1;
+    }
+
+    showdown(){
+        // place showdown code here 
+
+        this.newRound();
+    }
+
+    
 
     bestHandTypes(){
         let hand = this.playerHands[playerIndex];
