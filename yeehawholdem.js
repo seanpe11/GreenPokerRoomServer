@@ -168,11 +168,16 @@ let Yeehaw = class {
 
     // for next player action
     nextturn() {
-        this.toact++;
-        this.toact % this.notfolded.length;
+        this.toact = this.notfolded[(this.notfolded.indexOf(this.toact) + 1) % this.notfolded.length];
+
         // set condition when betting ends
-        if (this.toact == this.lastbet){ // if lastbet goes back around
+        if (this.toact == this.lastbet) // if lastbet goes back around
+        { 
             nextphase();
+        } 
+        else if (this.notfolded.length == 1) // all players have folded except one
+        { 
+            this.players[this.notfolded[0]].stack += this.pot;
         }
     }
 
@@ -226,24 +231,36 @@ let Yeehaw = class {
         }
     }
 
+    // finds first player after the button; this player is first to act for next phase of betting
+    findFirstToAct(){
+        let i;
+        let mapped = this.notfolded;
+        mapped.push(...mapped.map((value) => { return value + this.players.length} ));
+        for(i=0;i<mapped.length;i++){
+            if (mapped[i] > this.button){
+                this.toact = mapped[i] % this.players.length;
+            }
+        }
+    }
+
     flop(){
         this.board.push(this.deck.pop()); // too lazy to make this a for loop
         this.board.push(this.deck.pop());
         this.board.push(this.deck.pop());
         this.currentBet = 0;
-        this.toact = this.button + 1; 
+        this.findFirstToAct(); 
     }
 
     turn(){
         this.board.push(this.deck.pop());
         this.currentBet = 0;
-        this.toact = this.button + 1;
+        this.findFirstToAct();
     }
 
     river(){
         this.board.push(this.deck.pop());
         this.currentBet = 0;
-        this.toact = this.button + 1;
+        this.findFirstToAct();
     }
 
     showdown(){
