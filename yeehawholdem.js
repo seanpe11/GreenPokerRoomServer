@@ -101,12 +101,18 @@ let Yeehaw = class {
             case "CALL":
                 if (action.value == this.currentBet){
                     this.players[action.playerIndex].stack -= this.currentBet;
+                    this.pot += this.currentBet;
                     this.nextturn();
                     return { result: "CALL", isValid: true };
                 } else if (action.value >= this.players[action.playerIndex].stack){
+                    this.pot += this.players[action.playerIndex].stack;
                     this.players[action.playerIndex].stack = 0; // player's bet makes him go all in
                     this.nextturn();
                     return { result: "FORCED ALL IN", isValid: true };
+                } else if (action.playerIndex == this.smallblind && this.currentBet == this.bb) {
+                    this.pot += this.smallblind;
+                    this.players[this.smallblind].stack -= this.smallblind;
+                    this.nextturn();
                 } else {
                     return { result: "INVALID CALL", isValid: false };
                 }
@@ -114,12 +120,17 @@ let Yeehaw = class {
             case "RAISE":
                 if(action.value > this.currentBet){
                     if (action.value >= this.players[action.playerIndex].stack){
+                        this.pot += this.player[action.playerIndex].stack;
                         this.players[action.playerIndex].stack = 0; // player's bet makes him go all in
                         this.currentBet = action.value;
+                        this.lastbet = action.playerIndex;
                         this.nextturn();
                         return { result: "ALL IN", isValid: true };
                     } else if (action.value >= this.currentBet + this.bb) {
+                        this.pot += action.value;
                         this.players[action.playerIndex].stack -= action.value; // deduct bet from player stack
+                        this.currentBet = action.value; 
+                        this.lastbet = action.playerIndex;
                         this.nextturn();
                         return { result: "RAISE", isValid: true };
                     } 
@@ -150,9 +161,10 @@ let Yeehaw = class {
         this.button = this.button % this.players.length; // make sure it loops around
         this.smallblind = (this.button + 1) % this.players.length;
         this.bigblind = (this.smallblind + 1) % this.players.length;
-        this.underthegun = (this.bigblind + 1) % this.players.length;
-        this.toact = this.underthegun;
+        this.toact = (this.bigblind + 1) % this.players.length;
+        this.lastbet = this.bigblind;
         this.pot = this.sb + this.bb;
+        this.currentBet = this.bb;
         this.players[this.smallblind].stack -= this.sb; 
         if (this.players[this.smallblind].stack > 0){
             this.players[this.smallblind].stack = 0; // forced all-in cause of small blind
@@ -161,7 +173,6 @@ let Yeehaw = class {
         if (this.players[this.bigblind].stack > 0){
             this.players[this.bigblind].stack = 0; // forced all-in cause of big blind
         }
-        this.currentBet = this.bb;
         this.notfolded = [...Array(this.players.length).keys()]; // first round, so all players not folded
         this.deal();
     }
@@ -169,15 +180,20 @@ let Yeehaw = class {
     // for next player action
     nextturn() {
         this.toact = this.notfolded[(this.notfolded.indexOf(this.toact) + 1) % this.notfolded.length];
+        if (this.players[this.toact].stack == 0){
+            this.toact = this.notfolded[(this.notfolded.indexOf(this.toact) + 1) % this.notfolded.length];
+        }
 
         // set condition when betting ends
-        if (this.toact == this.lastbet) // if lastbet goes back around
+        if (this.toact == this.lastbet) // TODO: condition when bet has been matched
         { 
-            nextphase();
+            this.nextphase();
         } 
         else if (this.notfolded.length == 1) // all players have folded except one
         { 
             this.players[this.notfolded[0]].stack += this.pot;
+            // something about highlighting winner
+            this.newRound();
         }
     }
 
@@ -231,18 +247,6 @@ let Yeehaw = class {
         }
     }
 
-    // finds first player after the button; this player is first to act for next phase of betting
-    findFirstToAct(){
-        let i;
-        let mapped = this.notfolded;
-        mapped.push(...mapped.map((value) => { return value + this.players.length} ));
-        for(i=0;i<mapped.length;i++){
-            if (mapped[i] > this.button){
-                this.toact = mapped[i] % this.players.length;
-            }
-        }
-    }
-
     flop(){
         this.board.push(this.deck.pop()); // too lazy to make this a for loop
         this.board.push(this.deck.pop());
@@ -263,11 +267,26 @@ let Yeehaw = class {
         this.findFirstToAct();
     }
 
+    // finds first player after the button; this player is first to act for next phase of betting
+    findFirstToAct(){
+        let i;
+        let mapped = this.notfolded;
+        mapped.push(...mapped.map((value) => { return value + this.players.length } ));
+        for(i=0;i<mapped.length;i++){
+            if (mapped[i] > this.button){
+                this.toact = mapped[i] % this.players.length;
+                this.lastbet = this.toact;
+                break;
+            }
+        }
+    }
+
     showdown(){
         // place showdown code here 
-
-        this.newRound();
+        this.getWinner()
     }
+
+    
 
     
 
@@ -281,15 +300,57 @@ let Yeehaw = class {
     }
 
     // returns index of highest hand from all players involved
-    getWinner(arrHands){
-        arrFound = [];
+    getWinner(){
+        let showdowners = [];
         let i;
-        for(i=0;i<arrHands.length;i++){
-            
+        for (i=0;i<this.notfolded.length;i++){
+            showdowners.push(this.players[this.notfolded[i]]);
         }
+        
+        for(i=0;i<showdowners.length;i++){
+            // get best hand for each    
+        }
+        // figure out who wins
     }
 
-    highCard(hand) {
+
+    evalRoyalFlush(hand){
+
+    }
+
+    evalStraightFlush(hand) {
+
+    }
+
+    evalQuads(hand){
+
+    }
+
+    evalFullHouse (hand) {
+
+    }
+
+    evalFlush(hand) {
+
+    }
+    
+    evalStraight(hand){
+
+    }
+
+    evalTrips(hand) {
+
+    }
+
+    evalTwoPair(hand){
+        
+    }
+
+    evalPair(hand) {
+        
+    }
+
+    evalHighCard(hand) {
         let i;
         for (i=0;i<hand.length;i++){
             
