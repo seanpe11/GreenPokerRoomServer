@@ -9,24 +9,6 @@ function shuffle(a) {
     return a;
 }
 
-function cardToString(card){
-    let cardString = "";
-    let faces = ['J', 'Q', 'K'];
-    let suits = ['c','d','h','s'];
-    
-    if (card.val == 1) {
-        cardString = cardString.concat('A');
-    } else if (card.val > 10) {
-        cardString = cardString.concat(faces[card.val-11]);
-    } else {
-        cardString = cardString.concat(card.val);
-    }
-
-    cardString = cardString.concat(suits[0]);
-
-    return cardString;
-}
-
 let Player = class {
     name = "";
     stack = 100;
@@ -35,6 +17,28 @@ let Player = class {
     constructor(name, startingStack){
         this.name = name;
         this.stack = startingStack;
+    }
+}
+
+let Card = class {
+    constructor(value, suit, number){
+        this.val = value;
+        this.suit = suit;
+        this.numval = number;
+
+        let cardString = "";
+        let faces = ['J', 'Q', 'K', 'A'];
+        let suits = ['c','d','h','s'];
+        
+        if (this.val == 13) {
+            cardString = cardString.concat('A');
+        } else if (this.val >= 10) {
+            cardString = cardString.concat(faces[this.val-10]);
+        } else {
+            cardString = cardString.concat(this.val+1);
+        }
+
+        this.cardString = cardString.concat(suits[this.suit]);
     }
 }
 
@@ -61,6 +65,7 @@ let Yeehaw = class {
         this.lastbet = this.bigblind; // when betting reaches this person, round of betting ends
         // values for each turn
         this.pot = this.sb + this.bb;
+        this.sidepot = this.sb + this.bb; // in case someone goes all in and there are other players still betting after one goes all in
         this.currentBet = this.bb;
         this.notfolded = [...Array(this.players.length).keys()];// index of players not folded
     }
@@ -180,6 +185,7 @@ let Yeehaw = class {
     // for next player action
     nextturn() {
         this.toact = this.notfolded[(this.notfolded.indexOf(this.toact) + 1) % this.notfolded.length];
+        // if someone goes all in, skip their turn but don't fold them
         if (this.players[this.toact].stack == 0){
             this.toact = this.notfolded[(this.notfolded.indexOf(this.toact) + 1) % this.notfolded.length];
         }
@@ -220,28 +226,17 @@ let Yeehaw = class {
     deal() {
         this.deck = [];
         let i;
-        for (i=1;i<=52;i++){
-            this.deck.push(i);
+        for (i=0;i<52;i++){
+            this.deck.push(new Card(Math.floor(i%13+1), Math.floor(i/13), i));
         }
         shuffle(this.deck);
         for(i=0;i<this.players.length;i++){
             var hand = [];
-            var draw = this.deck.pop();
-            let card = {
-                val: Math.floor(draw%13+1),
-                suit: Math.floor(draw/13),
-                numval: draw
-            };
-            hand.push(card);
-            let draw2 = this.deck.pop();
-            card = {
-                val: Math.floor(draw2%13+1),
-                suit: Math.floor(draw2/13),
-                numval: draw2
-            };
-            hand.push(card);
 
-            console.log(draw + " " + draw2);
+            var draw = this.deck.pop();
+            hand.push(draw);
+            let draw2 = this.deck.pop();
+            hand.push(draw2);
 
             this.players[i].hand = hand;
         }
@@ -314,49 +309,222 @@ let Yeehaw = class {
     }
 
 
-    evalRoyalFlush(hand){
+    evalStraightFlush(seven) {
+        let i, j;
+        let count = 0;
+        let bestfive = [];
 
+        seven.sort((a, b) =>  (a.val < b.val) ? 1 : -1);
+        for (i=0;i<seven.length-1;i++){
+            if (seven[i].val-1 == seven[i+1].val){
+                count++;
+                if (count >= 4)
+                    j = i+1;
+            } else {
+                count = 0;
+            }
+        }
+
+        if (count == 4){
+            bestfive.push(...seven.splice(j-4, 5));
+            for (i=0;i<bestfive.length-1;i++){
+                if (bestfive[i].suit != bestfive[i+1].suit){
+                    return false;
+                }
+            }
+            if (bestfive[0].val == 13 && bestfive[1].val == 12){
+                return { isThis:true, score: 10, bestFive: bestfive}
+            }
+            return { isThis:true, score: 9, bestFive: bestfive}
+        }
+
+        return false;
     }
 
-    evalStraightFlush(hand) {
+    evalQuads(seven){
+        let i;
+        let found = false;
+        let bestfive = [];
 
+        seven.sort((a, b) =>  (a.val < b.val) ? 1 : -1);
+        for (i=0;i<seven.length-3;i++){
+            if (seven[i].val == seven[i+1].val && seven[i].val == seven[i+2].val && seven[i].val == seven[i+3].val){
+                found = true;
+                break;
+            }
+        }
+
+        if (found) {
+            bestfive.push(...seven.splice(i, 4)); // add quads to bestfive in the front
+            bestfive.push(...seven.splice(0)); // add highest kicker
+            return { isThis: true, score: 8, bestFive: bestfive };
+        }
+        return false;
     }
 
-    evalQuads(hand){
+    evalFullHouse (seven) {
+        let i;
+        let found = false;
+        let bestfive = [];
 
+        seven.sort((a, b) =>  (a.val < b.val) ? 1 : -1);
+        for (i=0;i<seven.length-2;i++){
+            if (seven[i].val == seven[i+1].val && seven[i].val == seven[i+2].val){ // find trips
+                break;
+            }
+        }
+        bestfive.push(...seven.splice(i, 3)); // add pair to bestfive in the front
+        for (i=0;i<seven.length-1;i++){ // find second pair
+            if (seven[i].val == seven[i+1].val){
+                found = true;
+                break;
+            }
+        }
+        bestfive.push(...seven.splice(i, 2));
+
+        if (found){
+            return { isThis: false, score: 7, bestFive: bestfive };
+        } 
+        return false;   
     }
 
-    evalFullHouse (hand) {
+    evalFlush(seven) {
+        let counts = [0, 0, 0, 0];
+        let i;
+        let bestfive = [];
 
-    }
+        seven.sort((a, b) =>  (a.val < b.val) ? 1 : -1);
+        for (i=0;i<seven.length;i++){
+            counts[seven[i].suit]++;
+        }
 
-    evalFlush(hand) {
+        if (counts.indexOf(5) != -1){
+            let suit = counts.indexOf(5);
+            for (i=0;i<seven.length;i++){
+                if(seven[i].suit == suit){
+                    bestFive.push(seven[i]);
+                }
+            }
+            return { isThis:true, score: 6, bestFive: bestfive}
+        }
 
+        return false;
     }
     
-    evalStraight(hand){
 
-    }
+    // TODO: NEEDS TO FIGURE OUT ACE CASE
+    evalStraight(seven){
+        let i, j;
+        let count = 0;
+        let bestfive = [];
 
-    evalTrips(hand) {
+        // HERES MY IDEA: IF THERE'S AN ACE, SIMPLY ADD 0 TO THE SEVEN
 
-    }
-
-    evalTwoPair(hand){
-        
-    }
-
-    evalPair(hand) {
-        
-    }
-
-    evalHighCard(hand) {
-        let i;
-        for (i=0;i<hand.length;i++){
+        seven.sort((a, b) =>  (a.val < b.val) ? 1 : -1);
+        for (i=0;i<seven.length-1;i++){
             
+            if (seven[i].val-1 == seven[i+1].val){
+                count++;
+                // 5 4 3 2 A straight
+                if (count == 3 && seven[0].val == 13){
+                    bestfive.push(...seven.splice(i+1-4, 4));
+                    bestfive.push(seven[0]);
+                    return { isThis:true, score: 5, bestFive: bestfive}
+                }
+                if (count >= 4)
+                    j = i+1;
+            } else {
+                count = 0;
+            }
         }
+
+        if (count == 4){
+            bestfive.push(...seven.splice(j-4, 5));
+            return { isThis:true, score: 5, bestFive: bestfive}
+        }
+
+        return false;
+    }
+
+    evalTrips(seven) {
+        let i;
+        let found = false;
+        let bestfive = [];
+
+        seven.sort((a, b) =>  (a.val < b.val) ? 1 : -1);
+        for (i=0;i<seven.length-2;i++){
+            if (seven[i].val == seven[i+1].val && seven[i].val == seven[i+2].val){
+                found = true;
+                break;
+            }
+        }
+
+
+        if (found) {
+            bestfive.push(...seven.splice(i, 3)); // add pair to bestfive in the front
+            bestfive.push(...seven.splice(0,2)); // take 3 highest cards from remaining seven
+            return { isThis: true, score: 4, bestFive: bestfive };
+        }
+        return false;   
+    }
+
+    evalTwoPair(seven){
+        let i;
+        let found = false;
+        let bestfive = [];
+
+        seven.sort((a, b) =>  (a.val < b.val) ? 1 : -1);
+        for (i=0;i<seven.length-1;i++){ // find first pair
+            if (seven[i].val == seven[i+1].val){
+                break;
+            }
+        }
+        bestfive.push(...seven.splice(i, 2)); // add pair to bestfive in the front
+        for (i=0;i<seven.length-1;i++){ // find second pair
+            if (seven[i].val == seven[i+1].val){
+                found = true;
+                break;
+            }
+        }
+        
+
+        if (found){
+            bestfive.push(...seven.splice(i, 2)); // add pair to bestfive in the front
+            bestfive.push(seven[0]);
+            return { isThis: false, score: 3, bestFive: bestfive };
+        } 
+        return false;   
+    }
+
+    evalPair(seven) {
+        let i;
+        let found = false;
+        let bestfive = [];
+
+        seven.sort((a, b) =>  (a.val < b.val) ? 1 : -1);
+        for (i=0;i<seven.length-1;i++){
+            if (seven[i].val == seven[i+1].val){
+                found = true;
+                break;
+            }
+        }
+
+        if (found) {
+            bestfive.push(...seven.splice(i, 2)); // add pair to bestfive in the front
+            bestfive.push(...seven.splice(0,3)); // take 3 highest cards from remaining seven
+            return { isThis: true, score: 2, bestFive: bestfive };
+        }
+        return false;   
+    }
+
+    evalHighCard(seven) {
+        let i;
+        seven.sort((a, b) =>  (a.val < b.val) ? 1 : -1);
+        seven.splice(5,2)
+        return { isThis: true, score: 1, bestFive: seven };
     }
 }
 
-exports.Yeehaw = yeehaw;
-exports.Player = player;
+wow = new Yeehaw([new Player("Sean", 100), new Player("Rasheed", 100)], 1, 2);
+wow.deal();
+console.log(wow.deck);
