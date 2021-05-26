@@ -281,10 +281,6 @@ let Yeehaw = class {
         this.getWinner()
     }
 
-    
-
-    
-
     bestHandTypes(){
         let hand = this.playerHands[playerIndex];
         let i;
