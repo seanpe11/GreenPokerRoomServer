@@ -2,10 +2,7 @@ const app = require('express')();
 const http = require('http').Server(app);
 const io = require('socket.io')(http);
 const port = process.env.PORT || 3000;
-
-app.get('/', (req, res) => {
-  res.sendFile(__dirname + '/index.html');
-});
+const yeehaw = require('./yeehawholdem.js')
 
 let game;
 let players = [];
@@ -13,7 +10,7 @@ io.on('connection', (socket) => {
   console.log("a user has connected")
 
   socket.on('PLAYER_JOIN', player => {
-    player = new Player(player.name, player.start);
+    player = new yeehaw.Player(player.name, player.start);
     
     if (players.length == 4){
       io.emit('TABLE_FULL', game);
@@ -23,12 +20,12 @@ io.on('connection', (socket) => {
   })
 
   socket.on('START_GAME', data => {
-    game = new Yeehaw(players, data.sb, data.bb);
+    game = new yeehaw.Yeehaw(players, data.sb, data.bb);
     io.emit('NEW_GAME', game);
   })
 
   socket.on('RESET_GAME', data => {
-    game = new Yeehaw(players, data.sb, data.bb);
+    game = new yeehaw.Yeehaw(players, data.sb, data.bb);
     io.emit('NEW_GAME', game);
   })
 

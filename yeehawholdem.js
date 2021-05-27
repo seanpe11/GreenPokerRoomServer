@@ -9,7 +9,7 @@ function shuffle(a) {
     return a;
 }
 
-let Player = class {
+module.exports.Player = class Player {
     name = "";
     stack = 100;
     hand = [];
@@ -20,7 +20,7 @@ let Player = class {
     }
 }
 
-let Card = class {
+module.exports.Card = class Card {
     constructor(value, suit, number){
         this.val = value;
         this.suit = suit;
@@ -42,7 +42,7 @@ let Card = class {
     }
 }
 
-let Yeehaw = class {
+module.exports.Yeehaw = class Yeehaw {
     deck = []; // deck of cards, drawing without replacement
     board = []; // board of cards, numbers only
     phase = 0; // betting phase
@@ -520,7 +520,3 @@ let Yeehaw = class {
         return { isThis: true, score: 1, bestFive: seven };
     }
 }
-
-wow = new Yeehaw([new Player("Sean", 100), new Player("Rasheed", 100)], 1, 2);
-wow.deal();
-console.log(wow.deck);
