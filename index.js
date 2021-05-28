@@ -40,6 +40,10 @@ io.on('connection', (socket) => {
     
   })
 
+  socket.on('PLAYER_LEAVE', player => {
+    
+  })
+
   socket.on('START_GAME', data => {
     game = new yeehaw.Yeehaw(players, data.sb, data.bb);
     io.emit('NEW_GAME', game);

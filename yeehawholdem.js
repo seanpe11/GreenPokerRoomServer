@@ -299,7 +299,8 @@ module.exports.Yeehaw = class Yeehaw {
         }
         
         for(i=0;i<showdowners.length;i++){
-            // get best hand for each    
+            // get best hand for each 
+            
         }
         // figure out who wins
     }
@@ -334,7 +335,7 @@ module.exports.Yeehaw = class Yeehaw {
             return { isThis:true, score: 9, bestFive: bestfive}
         }
 
-        return false;
+        return { isThis: false };
     }
 
     evalQuads(seven){
