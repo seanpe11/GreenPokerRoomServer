@@ -8,6 +8,11 @@ app.get('/', (req, res) => {
   res.sendFile(__dirname + '/index.html');
 });
 
+app.get('/playerTest', (req, res) => {
+  let wow = new yeehaw.Player("seasn", 100);
+  res.send(wow);
+})
+
 let game;
 let players = [];
 io.on('connection', (socket) => {
@@ -28,6 +33,7 @@ io.on('connection', (socket) => {
       io.emit('TABLE_FULL', game);
       console.log("TABLE FULL NO ADD: " + player);
     } else {
+      players.push(player);
       io.emit('PLAYER_JOIN', player);
       console.log("PLAYER ADDED: " + player);
     }
