@@ -69,6 +69,7 @@ module.exports.Yeehaw = class Yeehaw {
         this.sidepot = this.sb + this.bb; // in case someone goes all in and there are other players still betting after one goes all in
         this.currentBet = this.bb; // bet to match or raise to stay in the pot
         this.notfolded = [...Array(this.players.length).keys()];// index of players not folded
+        this.deal();
     }
 
     get smallblind_json(){
