@@ -4,10 +4,18 @@ const io = require('socket.io')(http);
 const port = process.env.PORT || 3000;
 const yeehaw = require('./yeehawholdem.js')
 
+app.get('/', (req, res) => {
+  res.sendFile(__dirname + '/index.html');
+});
+
 let game;
 let players = [];
 io.on('connection', (socket) => {
   console.log("a user has connected")
+
+  socket.on("hello", () => {
+    console.log("someone says hello")
+  })
 
   socket.on('PLAYER_JOIN', player => {
     player = new yeehaw.Player(player.name, player.start);

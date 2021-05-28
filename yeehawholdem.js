@@ -12,7 +12,8 @@ function shuffle(a) {
 module.exports.Player = class Player {
     name = "";
     stack = 100;
-    hand = [];
+    hand1 = {};
+    hand2 = {};
     best = []; // best 5 cards
     constructor(name, startingStack){
         this.name = name;
@@ -66,7 +67,7 @@ module.exports.Yeehaw = class Yeehaw {
         // values for each turn
         this.pot = this.sb + this.bb;
         this.sidepot = this.sb + this.bb; // in case someone goes all in and there are other players still betting after one goes all in
-        this.currentBet = this.bb;
+        this.currentBet = this.bb; // bet to match or raise to stay in the pot
         this.notfolded = [...Array(this.players.length).keys()];// index of players not folded
     }
 
@@ -231,14 +232,13 @@ module.exports.Yeehaw = class Yeehaw {
         }
         shuffle(this.deck);
         for(i=0;i<this.players.length;i++){
-            var hand = [];
 
-            var draw = this.deck.pop();
-            hand.push(draw);
+            let draw1 = this.deck.pop();
             let draw2 = this.deck.pop();
-            hand.push(draw2);
 
-            this.players[i].hand = hand;
+            this.players[i].hand1 = draw1;
+            this.players[i].hand2 = draw2;
+
         }
     }
 
