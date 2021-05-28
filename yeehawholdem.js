@@ -12,6 +12,8 @@ function shuffle(a) {
 module.exports.Player = class Player {
     name = "";
     stack = 100;
+    score = 0;
+    isWinner=0;
     hand1 = {};
     hand2 = {};
     best = []; // best 5 cards
@@ -69,6 +71,7 @@ module.exports.Yeehaw = class Yeehaw {
         this.sidepot = this.sb + this.bb; // in case someone goes all in and there are other players still betting after one goes all in
         this.currentBet = this.bb; // bet to match or raise to stay in the pot
         this.notfolded = [...Array(this.players.length).keys()];// index of players not folded
+        this.deal()
     }
 
     get smallblind_json(){
@@ -293,14 +296,97 @@ module.exports.Yeehaw = class Yeehaw {
     // returns index of highest hand from all players involved
     getWinner(){
         let showdowners = [];
-        let i;
+        let sevencards = []
+        let temp, split
+        let total1 = 0;
+        let total2=0;
+        let straightflush, quads, fullhouse, flush, straight, trips, twopair, pair, highcard;
+        let i,j;
         for (i=0;i<this.notfolded.length;i++){
             showdowners.push(this.players[this.notfolded[i]]);
         }
         
+        
         for(i=0;i<showdowners.length;i++){
+            sevencards = board
+            sevencards.push(showdowners[i].hand1)
+            sevencards.push(showdowners[i].hand2)
+
             // get best hand for each    
+            let straightflush = this.evalStraightFlush(sevencards)
+            let quads = this.evalQuads(sevencards)
+            let fullhouse = this.evalFullHouse(sevencards)
+            let flush = this.evalFlush(sevencards)
+            let straight = this.evalStraight(sevencards)
+            let trips = this.evalTrips(sevencards)
+            let twopair = this.evalTwoPair(sevencards)
+            let pair = this.evalPair(sevencards)
+            let highcard = this.evalHighCard(sevencards)
+            if(straightflush.isThis == true){
+                showdowners[i].score = straightflush.score
+                showdowners[i].bestFive = straightflush.bestFive
+            } else if(quads.isThis == true){
+                showdowners[i].score = quads.score
+                showdowners[i].bestFive = quads.bestFive
+            }else if(fullhouse.isThis == true){
+                showdowners[i].score = fullhouse.score
+                showdowners[i].bestFive = fullhouse.bestFive
+            }else if(flush.isThis == true){
+                showdowners[i].score = flush.score
+                showdowners[i].bestFive = flush.bestFive
+            }else if(straight.isThis == true){
+                showdowners[i].score = straight.score
+                showdowners[i].bestFive = straight.bestFive
+            }else if(trips.isThis == true){
+                showdowners[i].score = trips.score
+                showdowners[i].bestFive = trips.bestFive
+            }else if(twopair.isThis == true){
+                showdowners[i].score = twopair.score
+                showdowners[i].bestFive = twopair.bestFive
+            }else if(pair.isThis == true){
+                showdowners[i].score = pair.score
+                showdowners[i].bestFive = pair.bestFive
+            }else if(highcard.isThis == true){
+                showdowners[i].score = highcard.score
+                showdowners[i].bestFive = highcard.bestFive
+            }
         }
+
+        for(i=0;i<showdowners.length-1;i++){
+            if(showdowners[i].score>showdowners[i+1].score){
+                temp = i
+            }else if (showdowners[i].score == showdowners[i+1].score){
+                for(j=0;j<showdowners[i].bestFive.length;j++){
+                    total1 += showdowners[i].bestFive[j].val
+                }
+                for(j=0;j<showdowners[i+1].bestFive.length;j++){
+                    total2 += showdowners[i].bestFive[j].val
+                }
+                if(total1>total2){
+                    temp = i
+                }else if(total1<total2){
+                    temp=i+1
+                }else{
+                    split = i
+                    temp=-1
+                }
+            }else{
+                temp=i+1
+            }
+        }
+        if(temp!=-1){
+            showdowners[temp].isWinner = 1;
+            showdowners[temp].stack += this.pot
+            //show hand 1 and hand 2
+        }else{
+            //split pot
+            showdowners[split].stack = this.pot/2
+            showdowners[split].stack = this.pot/2
+        }
+
+        this.newRound();
+
+
         // figure out who wins
     }
 
@@ -334,7 +420,7 @@ module.exports.Yeehaw = class Yeehaw {
             return { isThis:true, score: 9, bestFive: bestfive}
         }
 
-        return false;
+        return {isThis: false};
     }
 
     evalQuads(seven){
@@ -355,7 +441,7 @@ module.exports.Yeehaw = class Yeehaw {
             bestfive.push(...seven.splice(0)); // add highest kicker
             return { isThis: true, score: 8, bestFive: bestfive };
         }
-        return false;
+        return {isThis: false};
     }
 
     evalFullHouse (seven) {
@@ -381,7 +467,7 @@ module.exports.Yeehaw = class Yeehaw {
         if (found){
             return { isThis: false, score: 7, bestFive: bestfive };
         } 
-        return false;   
+        return {isThis: false};
     }
 
     evalFlush(seven) {
@@ -404,7 +490,7 @@ module.exports.Yeehaw = class Yeehaw {
             return { isThis:true, score: 6, bestFive: bestfive}
         }
 
-        return false;
+        return {isThis: false};
     }
     
 
@@ -439,7 +525,7 @@ module.exports.Yeehaw = class Yeehaw {
             return { isThis:true, score: 5, bestFive: bestfive}
         }
 
-        return false;
+        return {isThis: false};
     }
 
     evalTrips(seven) {
@@ -461,7 +547,7 @@ module.exports.Yeehaw = class Yeehaw {
             bestfive.push(...seven.splice(0,2)); // take 3 highest cards from remaining seven
             return { isThis: true, score: 4, bestFive: bestfive };
         }
-        return false;   
+        return {isThis: false};
     }
 
     evalTwoPair(seven){
@@ -489,7 +575,7 @@ module.exports.Yeehaw = class Yeehaw {
             bestfive.push(seven[0]);
             return { isThis: false, score: 3, bestFive: bestfive };
         } 
-        return false;   
+        return {isThis: false};
     }
 
     evalPair(seven) {
@@ -510,7 +596,7 @@ module.exports.Yeehaw = class Yeehaw {
             bestfive.push(...seven.splice(0,3)); // take 3 highest cards from remaining seven
             return { isThis: true, score: 2, bestFive: bestfive };
         }
-        return false;   
+        return {isThis: false}; 
     }
 
     evalHighCard(seven) {
