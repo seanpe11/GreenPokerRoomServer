@@ -26,10 +26,12 @@ io.on('connection', (socket) => {
     
     if (players.length == 4){
       io.emit('TABLE_FULL', game);
+      console.log("TABLE FULL NO ADD: " + player);
     } else {
       io.emit('PLAYER_JOIN', player);
+      console.log("PLAYER ADDED: " + player);
     }
-    console.log("PLAYER ADDED: " + player);
+    
   })
 
   socket.on('START_GAME', data => {
