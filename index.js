@@ -17,6 +17,10 @@ io.on('connection', (socket) => {
     console.log("someone says hello")
   })
 
+  socket.on("test", test => {
+    console.log(test);
+  })
+
   socket.on('PLAYER_JOIN', player => {
     player = new yeehaw.Player(player.name, player.start);
     
@@ -25,16 +29,19 @@ io.on('connection', (socket) => {
     } else {
       io.emit('PLAYER_JOIN', player);
     }
+    console.log("PLAYER ADDED: " + player);
   })
 
   socket.on('START_GAME', data => {
     game = new yeehaw.Yeehaw(players, data.sb, data.bb);
     io.emit('NEW_GAME', game);
+    console.log("GAME STARTED: " + game);
   })
 
   socket.on('RESET_GAME', data => {
     game = new yeehaw.Yeehaw(players, data.sb, data.bb);
     io.emit('NEW_GAME', game);
+    console.log("GAME RESET: " + game);
   })
 
   socket.on('PLAYER_ACTION', action => {
@@ -42,7 +49,8 @@ io.on('connection', (socket) => {
     if (gamestate.isValid)
       io.emit(gamestate.result, game);
     else
-      io.emit('ACTION_ERROR', gamestate.result);
+      io.emit('ACTION_ERROR', gamestate);
+    console.log("PLAYER_ACTION" + game);
   }); 
 
 
