@@ -14,7 +14,7 @@ app.get('/playerTest', (req, res) => {
   res.send(wow);
 })
 
-let game;
+let game = {phase: -1};
 let status = { active:false }
 let players = [];
 io.on('connection', (socket) => {
