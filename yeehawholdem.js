@@ -99,12 +99,12 @@ class Yeehaw {
             case "CHECK":
                 if(action.playerIndex == this.bigblind && this.currentBet == this.bb){ 
                     this.nextturn();
-                    return { result: "CHECK", isValid: true };
+                    return { result: "CHECK", isValid: true, playerIndex: action.playerIndex, value: action.value };
                 } else if (this.currentBet == 0) {
                     this.nextturn();
-                    return { result: "CHECK", isValid: true };
+                    return { result: "CHECK", isValid: true, playerIndex: action.playerIndex, value: action.value };
                 } else {
-                    return { result: "INVALID CHECK", isValid: false };
+                    return { result: "INVALID CHECK", isValid: false, playerIndex: action.playerIndex, value: action.value };
                 }
 
             case "CALL":
@@ -112,18 +112,18 @@ class Yeehaw {
                     this.players[action.playerIndex].stack -= this.currentBet;
                     this.pot += this.currentBet;
                     this.nextturn();
-                    return { result: "CALL", isValid: true };
+                    return { result: "CALL", isValid: true, playerIndex: action.playerIndex, value: action.value };
                 } else if (action.value >= this.players[action.playerIndex].stack){
                     this.pot += this.players[action.playerIndex].stack;
                     this.players[action.playerIndex].stack = 0; // player's bet makes him go all in
                     this.nextturn();
-                    return { result: "FORCED ALL IN", isValid: true };
+                    return { result: "FORCED ALL IN", isValid: true, playerIndex: action.playerIndex, value: action.value };
                 } else if (action.playerIndex == this.smallblind && this.currentBet == this.bb) {
                     this.pot += this.smallblind;
                     this.players[this.smallblind].stack -= this.smallblind;
                     this.nextturn();
                 } else {
-                    return { result: "INVALID CALL", isValid: false };
+                    return { result: "INVALID CALL", isValid: false, playerIndex: action.playerIndex, value: action.value };
                 }
 
             case "RAISE":
@@ -134,30 +134,30 @@ class Yeehaw {
                         this.currentBet = action.value;
                         this.lastbet = action.playerIndex;
                         this.nextturn();
-                        return { result: "ALL IN", isValid: true };
+                        return { result: "ALL IN", isValid: true, playerIndex: action.playerIndex, value: action.value };
                     } else if (action.value >= this.currentBet + this.bb) {
                         this.pot += action.value;
                         this.players[action.playerIndex].stack -= action.value; // deduct bet from player stack
                         this.currentBet = action.value; 
                         this.lastbet = action.playerIndex;
                         this.nextturn();
-                        return { result: "RAISE", isValid: true };
+                        return { result: "RAISE", isValid: true, playerIndex: action.playerIndex, value: action.value };
                     } 
                 } else {
-                    return { result: "INVALID RAISE", isValid: true };
+                    return { result: "INVALID RAISE", isValid: true, playerIndex: action.playerIndex, value: action.value, playerIndex: action.playerIndex, value: action.value };
                 }
 
             case "FOLD":
                 let remove = this.notfolded.indexOf(playerIndex);
                 if (remove == -1){
-                    return { result: "INVALID FOLD", isValid: false };
+                    return { result: "INVALID FOLD", isValid: false, playerIndex: action.playerIndex, value: action.value };
                 } 
                 this.notfolded.splice(remove, 1);
                 this.nextturn();
-                return { result: "FOLD", isValid: true };
+                return { result: "FOLD", isValid: true, playerIndex: action.playerIndex, value: action.value };
 
             default:
-                return { result: "INVALID ACTION", isValid: true };
+                return { result: "INVALID ACTION", isValid: true, playerIndex: action.playerIndex, value: action.value };
         }
     }
 
