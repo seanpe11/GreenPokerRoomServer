@@ -183,7 +183,7 @@ class Yeehaw {
             this.players[this.bigblind].stack = 0; // forced all-in cause of big blind
         }
         this.notfolded = [...Array(this.players.length).keys()]; // first round, so all players not folded
-        this.deal();
+        this.newRound();
     }
 
     // for next player action
