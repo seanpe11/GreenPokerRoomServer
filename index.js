@@ -2,6 +2,7 @@ const app = require('express')();
 const http = require('http').Server(app);
 const io = require('socket.io')(http);
 const port = process.env.PORT || 3000;
+const { Socket } = require('dgram');
 const yeehaw = require('./yeehawholdem.js')
 
 app.get('/', (req, res) => {
@@ -18,6 +19,7 @@ let status = { active:false }
 let players = [];
 io.on('connection', (socket) => {
   console.log("a user has connected")
+  socket.emit("UPDATE_GAME", game);
 
   socket.on("hello", () => {
     console.log("someone says hello")
@@ -51,8 +53,8 @@ io.on('connection', (socket) => {
   socket.on('START_GAME', data => {
     if (players.length>1){
       game = new yeehaw.Yeehaw(players, data.sb, data.bb);
-      io.emit('NEW_GAME', game);
-      console.log("GAME STARTED: " + game);
+      io.emit('UPDATE_GAME', game);
+      console.log("GAME STARTED: " + game.players);
     } else {
       io.emit('ERROR', {error: "Error: Not enough players joined!"});
       console.log("NO PLAYERS");
@@ -62,7 +64,7 @@ io.on('connection', (socket) => {
 
   socket.on('RESET_GAME', data => {
     game = new yeehaw.Yeehaw(players, data.sb, data.bb);
-    io.emit('NEW_GAME', game);
+    io.emit('UPDATE_GAME', game);
     console.log("GAME RESET: " + game);
   })
 
