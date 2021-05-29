@@ -14,6 +14,7 @@ app.get('/playerTest', (req, res) => {
 })
 
 let game;
+let status = { active:false }
 let players = [];
 io.on('connection', (socket) => {
   console.log("a user has connected")
@@ -27,7 +28,7 @@ io.on('connection', (socket) => {
   })
 
   socket.on('PLAYER_JOIN', player => {
-    player = new yeehaw.Player(player.name, player.start);
+    player = new yeehaw.Player(player.name);
     
     if (players.length == 4){
       io.emit('TABLE_FULL', game);
@@ -43,6 +44,9 @@ io.on('connection', (socket) => {
   socket.on('PLAYER_LEAVE', player => {
     
   })
+
+  // get the game
+  
 
   socket.on('START_GAME', data => {
     if (players.length>0){
