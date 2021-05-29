@@ -54,7 +54,7 @@ io.on('connection', (socket) => {
       io.emit('NEW_GAME', game);
       console.log("GAME STARTED: " + game);
     } else {
-      io.emit('NO_PLAYERS', game);
+      io.emit('ERROR', {error: "Error: No players joined!"});
       console.log("NO PLAYERS");
     }
     
@@ -69,10 +69,10 @@ io.on('connection', (socket) => {
   socket.on('PLAYER_ACTION', action => {
     let gamestate = game.playerAction(action);
     if (gamestate.isValid)
-      io.emit(gamestate.result, game);
+      io.emit("PLAYER_ACTION", { game: game, gamestate: gamestate });
     else
-      io.emit('ACTION_ERROR', gamestate);
-    console.log("PLAYER_ACTION" + game);
+      io.emit('ACTION_ERROR', "ERROR IN PLAYER ACTION");
+    console.log("PLAYER_ACTION" + { game: game, gamestate: gamestate });
   }); 
 
 
