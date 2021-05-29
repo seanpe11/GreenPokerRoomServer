@@ -49,12 +49,12 @@ io.on('connection', (socket) => {
   
 
   socket.on('START_GAME', data => {
-    if (players.length>0){
+    if (players.length>1){
       game = new yeehaw.Yeehaw(players, data.sb, data.bb);
       io.emit('NEW_GAME', game);
       console.log("GAME STARTED: " + game);
     } else {
-      io.emit('ERROR', {error: "Error: No players joined!"});
+      io.emit('ERROR', {error: "Error: Not enough players joined!"});
       console.log("NO PLAYERS");
     }
     
