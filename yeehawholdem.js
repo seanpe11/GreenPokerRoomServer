@@ -13,13 +13,12 @@ class Player {
     name = "";
     stack = 100;
     score = 0;
-    isWinner=0;
+    isWinner = 0;
     hand1 = {};
     hand2 = {};
     best = []; // best 5 cards
-    constructor(name, startingStack){
+    constructor(name){
         this.name = name;
-        this.stack = startingStack;
     }
 }
 

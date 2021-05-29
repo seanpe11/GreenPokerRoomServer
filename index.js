@@ -45,9 +45,15 @@ io.on('connection', (socket) => {
   })
 
   socket.on('START_GAME', data => {
-    game = new yeehaw.Yeehaw(players, data.sb, data.bb);
-    io.emit('NEW_GAME', game);
-    console.log("GAME STARTED: " + game);
+    if (players.length>0){
+      game = new yeehaw.Yeehaw(players, data.sb, data.bb);
+      io.emit('NEW_GAME', game);
+      console.log("GAME STARTED: " + game);
+    } else {
+      io.emit('NO_PLAYERS', game);
+      console.log("NO PLAYERS");
+    }
+    
   })
 
   socket.on('RESET_GAME', data => {
