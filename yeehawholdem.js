@@ -216,7 +216,7 @@ class Yeehaw {
     // for next betting phase (pre-flop, flop, turn, river, showdown), condition for each
     nextphase() {
         this.phase++;
-        switch (phase){
+        switch (this.phase){
             case 1:
                 this.flop(); // 3 cards to board
                 break;
