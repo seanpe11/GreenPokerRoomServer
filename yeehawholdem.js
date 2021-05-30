@@ -69,6 +69,15 @@ class Yeehaw {
         this.notfolded = [...Array(this.players.length).keys()];// index of players not folded
         this.newRound();
     }
+
+    get info(){
+        let infostring = ""
+            + "phase: " + this.phase + " currentbet: " + this.currentBet + " toact: " + this.toact + " notfolded: " + this.notfolded + "\n"
+            + "button: " + this.button + " sb: " + this.sb + " bb: " + this.bb + " pot: " + this.pot + "\n";
+        // infostring.concat("currentbet: " + this.currentBet + "toact: " + this.toact + "notfolded: " + this.notfolded + "\n");
+        // infostring.concat("button: " + this.button + "sb: " + this.sb + "bb: " + this.bb + "pot: " + this.pot + "\n");
+        return infostring;
+    }
         
 
     get smallblind_json(){

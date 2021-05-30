@@ -21,9 +21,6 @@ io.on('connection', (socket) => {
   console.log("a user has connected")
   socket.emit("UPDATE_GAME", game);
 
-  socket.on("hello", () => {
-    console.log("someone says hello")
-  })
 
   socket.on("test", test => {
     console.log(test);
@@ -38,7 +35,7 @@ io.on('connection', (socket) => {
     } else {
       players.push(player);
       io.emit('PLAYER_JOIN', player);
-      console.log("PLAYER ADDED: " + player);
+      console.log("PLAYER ADDED: " + players);
     }
     
   })
@@ -54,7 +51,7 @@ io.on('connection', (socket) => {
     if (players.length>1){
       game = new yeehaw.Yeehaw(players, data.sb, data.bb);
       io.emit('UPDATE_GAME', game);
-      console.log("GAME STARTED: " + game.players);
+      console.log("GAME STARTED: " + game.info);
     } else {
       io.emit('ERROR', {error: "Error: Not enough players joined!"});
       console.log("NO PLAYERS");
@@ -65,7 +62,7 @@ io.on('connection', (socket) => {
   socket.on('RESET_GAME', data => {
     game = new yeehaw.Yeehaw(players, data.sb, data.bb);
     io.emit('UPDATE_GAME', game);
-    console.log("GAME RESET: " + game);
+    console.log("GAME RESET: " + game.info);
   })
 
   socket.on('PLAYER_ACTION', action => {
@@ -74,7 +71,7 @@ io.on('connection', (socket) => {
       io.emit("PLAYER_ACTION", { game: game, gamestate: gamestate });
     else
       io.emit('ERROR', "Error: Player can't make that move!");
-    console.log("PLAYER_ACTION" + { game: game, gamestate: gamestate });
+    console.log("PLAYER_ACTION: " + game.info);
   }); 
 
 
