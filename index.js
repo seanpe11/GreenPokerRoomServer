@@ -15,7 +15,7 @@ app.get('/playerTest', (req, res) => {
   res.send(wow);
 })
 
-let game = {phase: -1};
+let game = {};
 let status = { active:false }
 let players = [];
 io.on('connection', (socket) => {
@@ -23,7 +23,7 @@ io.on('connection', (socket) => {
   // socket.emit("UPDATE_GAME", game);
 
 
-  socket.on("test", test => {
+  socket.on("test", () => {
     players = [new yeehaw.Player("Sean"), new yeehaw.Player("Rasheed"), new yeehaw.Player("Jolo"), new yeehaw.Player("Bags")]
     game = new yeehaw.Yeehaw(players, 1, 2)
     socket.emit("UPDATE_GAME", game)
