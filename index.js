@@ -73,7 +73,7 @@ io.on('connection', (socket) => {
     if (gamestate.isValid)
       io.emit("PLAYER_ACTION", { game: game, gamestate: gamestate });
     else
-      io.emit('ACTION_ERROR', "ERROR IN PLAYER ACTION");
+      io.emit('ERROR', "Error: Player can't make that move!");
     console.log("PLAYER_ACTION" + { game: game, gamestate: gamestate });
   }); 
 
