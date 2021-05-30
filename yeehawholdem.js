@@ -74,7 +74,7 @@ class Yeehaw {
         let infostring = "\n"
             + "board: " + this.board + "\n"
             + "phase: " + this.phase + " currentbet: " + this.currentBet + " toact: " + this.toact + " notfolded: " + this.notfolded + "\n"
-            + "button: " + this.button + " sb: " + this.sb + " bb: " + this.bb + " pot: " + this.pot + "\n";
+            + "button: " + this.button + " sb: " + this.sb + " bb: " + this.bb + " pot: " + this.pot + " lastBet: " + this.lastbet + "\n";
         // infostring.concat("currentbet: " + this.currentBet + "toact: " + this.toact + "notfolded: " + this.notfolded + "\n");
         // infostring.concat("button: " + this.button + "sb: " + this.sb + "bb: " + this.bb + "pot: " + this.pot + "\n");
         return infostring;
@@ -110,7 +110,7 @@ class Yeehaw {
                 case "CHECK":
                     if( action.playerIndex == this.bigblind && this.currentBet == this.bb){ 
             
-                            this.nextturn();
+                        this.nextturn();
                         return { result: "CHECK", isValid: true, playerIndex: action.playerIndex, value: action.value };
                     } else if (this.currentBet == 0 ) {
                             this.nextturn();
@@ -216,7 +216,6 @@ class Yeehaw {
         // set condition when betting ends
         if (this.toact == this.lastbet) // TODO: condition when bet has been matched
         { 
-
             this.nextphase();
         } 
         
@@ -226,7 +225,7 @@ class Yeehaw {
             // something about highlighting winner
             this.newRound();
         }else{
-            this.toact = this.notfolded[(this.notfolded.indexOf(this.toact) + 1) % this.notfolded.length];
+            this.toact = this.notfolded[(this.notfolded.indexOf(this.toact) + 1) % this.players.length]
         }
     }
 
@@ -293,12 +292,22 @@ class Yeehaw {
         let i
         let toactSB = this.notfolded.indexOf(this.smallblind)
         let toactBB = this.notfolded.indexOf(this.bigblind)
+        let toactBTN = this.notfolded.indexOf(this.button)
+        let toactUTG = this.notfolded.indexOf(this.underthegun)
         if(toactSB == -1){
             this.toact = this.bigblind;
         } else if(toactBB == -1 && toactSB == -1){
             this.toact == this.underthegun;
         }else{
             this.toact = this.smallblind
+        }
+
+        if(toactBTN != -1){
+            this.lastbet = this.notfolded.indexOf(this.button)
+        } else if (toactUTG != -1){
+            this.lastbet = this.notfolded.indexOf(this.underthegun)
+        } else{
+            this.lastbet = this.notfolded.indexOf(this.bigblind)
         }
     }
 
