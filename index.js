@@ -27,6 +27,8 @@ io.on('connection', (socket) => {
     players = [new yeehaw.Player("Sean"), new yeehaw.Player("Rasheed"), new yeehaw.Player("Jolo"), new yeehaw.Player("Bags")]
     game = new yeehaw.Yeehaw(players, 1, 2)
     socket.emit("UPDATE_GAME", game)
+    console.log("TEST")
+    console.log(JSON.stringify(game))
   })
 
   socket.on('PLAYER_JOIN', player => {
