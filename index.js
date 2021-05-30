@@ -76,7 +76,6 @@ io.on('connection', (socket) => {
   })
 
   socket.on('PLAYER_ACTION', action => {
-    console.log("inside socket")
     let gamestate = game.playerAction(action);
     if (gamestate.isValid)
       io.emit("PLAYER_ACTION", { game: game, gamestate: gamestate });
@@ -84,6 +83,10 @@ io.on('connection', (socket) => {
       io.emit('ERROR', "Error: Player can't make that move!");
     console.log("PLAYER_ACTION: " + gamestate.result);
   }); 
+
+  socket.on('UPDATE_CLIENT', () => {
+    io.emit('UPDATE_GAME', game);
+  })
 
 
 
