@@ -5,19 +5,19 @@ game = new yeehaw.Yeehaw(players, 1, 2);
 console.log(game.info)
 
 action = {playerIndex: 0, action:"CALL", value:2}
-game.playerAction(action)
+console.log(game.playerAction(action))
 console.log(game.info)
 
 action = {playerIndex: 1, action:"CALL", value:2}
-game.playerAction(action)
+console.log(game.playerAction(action))
 console.log(game.info)
 
-action = {playerIndex: 2, action:"CALL", value:1} // smallblind
-game.playerAction(action)
+action = {playerIndex: 2, action:"CALL", value:1} // sb
+console.log(game.playerAction(action))
 console.log(game.info)
 
-action = {playerIndex: 3, action:"CHECK", value:1} // smallblind
-game.playerAction(action)
+action = {playerIndex: 3, action:"CHECK", value:1} // bb
+console.log(game.playerAction(action))
 console.log(game.info)
 
 

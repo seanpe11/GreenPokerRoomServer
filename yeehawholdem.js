@@ -66,13 +66,13 @@ class Yeehaw {
         this.pot = this.sb + this.bb;
         this.sidepot = this.sb + this.bb; // in case someone goes all in and there are other players still betting after one goes all in
         this.currentBet = this.bb; // bet to match or raise to stay in the pot
-        this.notfolded = [...Array(this.players.length).keys()];// index of players not folded
+        this.notfolded = [];// index of players not folded
         this.newRound();
     }
 
     get info(){
         let infostring = "\n"
-            + "board: " + this.board + "\n"
+            + "board: " + JSON.stringify(this.board) + "\n"
             + "phase: " + this.phase + " currentbet: " + this.currentBet + " toact: " + this.toact + " notfolded: " + this.notfolded + "\n"
             + "button: " + this.button + " sb: " + this.sb + " bb: " + this.bb + " pot: " + this.pot + "\n";
         // infostring.concat("currentbet: " + this.currentBet + "toact: " + this.toact + "notfolded: " + this.notfolded + "\n");
