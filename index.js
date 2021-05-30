@@ -2,6 +2,7 @@ const app = require('express')();
 const http = require('http').Server(app);
 const io = require('socket.io')(http);
 const port = process.env.PORT || 3000;
+const { Socket } = require('dgram');
 const yeehaw = require('./yeehawholdem.js')
 
 
@@ -14,15 +15,13 @@ app.get('/playerTest', (req, res) => {
   res.send(wow);
 })
 
-let game;
+let game = {phase: -1};
 let status = { active:false }
 let players = [];
 io.on('connection', (socket) => {
   console.log("a user has connected")
+  socket.emit("UPDATE_GAME", game);
 
-  socket.on("hello", () => {
-    console.log("someone says hello")
-  })
 
   socket.on("test", test => {
     console.log(test);
@@ -38,7 +37,11 @@ io.on('connection', (socket) => {
     } else {
       players.push(player);
       io.emit('PLAYER_JOIN', player);
+<<<<<<< HEAD
       console.log("PLAYER ADDED: " + player.name);
+=======
+      console.log("PLAYER ADDED: " + players);
+>>>>>>> fdef64ccba6db1c63c909d807153749fe8ce0196
     }
     
   })
@@ -51,12 +54,12 @@ io.on('connection', (socket) => {
   
 
   socket.on('START_GAME', data => {
-    if (players.length>0){
+    if (players.length>1){
       game = new yeehaw.Yeehaw(players, data.sb, data.bb);
-      io.emit('NEW_GAME', game);
-      console.log("GAME STARTED: " + game);
+      io.emit('UPDATE_GAME', game);
+      console.log("GAME STARTED: " + game.info);
     } else {
-      io.emit('NO_PLAYERS', game);
+      io.emit('ERROR', {error: "Error: Not enough players joined!"});
       console.log("NO PLAYERS");
     }
     
@@ -64,18 +67,18 @@ io.on('connection', (socket) => {
 
   socket.on('RESET_GAME', data => {
     game = new yeehaw.Yeehaw(players, data.sb, data.bb);
-    io.emit('NEW_GAME', game);
-    console.log("GAME RESET: " + game);
+    io.emit('UPDATE_GAME', game);
+    console.log("GAME RESET: " + game.info);
   })
 
   socket.on('PLAYER_ACTION', action => {
     console.log("inside socket")
     let gamestate = game.playerAction(action);
     if (gamestate.isValid)
-      io.emit(gamestate.result, game);
+      io.emit("PLAYER_ACTION", { game: game, gamestate: gamestate });
     else
-      io.emit('ACTION_ERROR', gamestate);
-    console.log("PLAYER_ACTION" + game);
+      io.emit('ERROR', "Error: Player can't make that move!");
+    console.log("PLAYER_ACTION: " + game.info);
   }); 
 
 

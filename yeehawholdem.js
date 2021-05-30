@@ -48,9 +48,6 @@ class Yeehaw {
     deck = []; // deck of cards, drawing without replacement
     board = []; // board of cards, numbers only
     phase = 0; // betting phase
-    handTypeNames = ['HIGH_CARD', 'PAIR', 'TWO_PAIR', 'THREE_OF_A_KIND', 'STRAIGHT', 'FLUSH', 'FULL_HOUSE', 'FOUR_OF_A_KIND', 'STRAIGHT_FLUSH'];
-    betPhases = ['Pre-Flop', 'Flop', 'Turn', 'River'];
-    
 
     // cards are represented as int 1-13 for the card value, 0-3 for suits
 
@@ -70,7 +67,17 @@ class Yeehaw {
         this.sidepot = this.sb + this.bb; // in case someone goes all in and there are other players still betting after one goes all in
         this.currentBet = this.bb; // bet to match or raise to stay in the pot
         this.notfolded = [...Array(this.players.length).keys()];// index of players not folded
-        this.deal();
+        this.newRound();
+    }
+
+    get info(){
+        let infostring = "\n"
+            + "board: " + this.board + "\n"
+            + "phase: " + this.phase + " currentbet: " + this.currentBet + " toact: " + this.toact + " notfolded: " + this.notfolded + "\n"
+            + "button: " + this.button + " sb: " + this.sb + " bb: " + this.bb + " pot: " + this.pot + "\n";
+        // infostring.concat("currentbet: " + this.currentBet + "toact: " + this.toact + "notfolded: " + this.notfolded + "\n");
+        // infostring.concat("button: " + this.button + "sb: " + this.sb + "bb: " + this.bb + "pot: " + this.pot + "\n");
+        return infostring;
     }
         
 
@@ -101,12 +108,12 @@ class Yeehaw {
             case "CHECK":
                 if(action.playerIndex == this.bigblind && this.currentBet == this.bb){ 
                     this.nextturn();
-                    return { result: "CHECK", isValid: true };
+                    return { result: "CHECK", isValid: true, playerIndex: action.playerIndex, value: action.value };
                 } else if (this.currentBet == 0) {
                     this.nextturn();
-                    return { result: "CHECK", isValid: true };
+                    return { result: "CHECK", isValid: true, playerIndex: action.playerIndex, value: action.value };
                 } else {
-                    return { result: "INVALID CHECK", isValid: false };
+                    return { result: "INVALID CHECK", isValid: false, playerIndex: action.playerIndex, value: action.value };
                 }
 
             case "CALL":
@@ -114,18 +121,19 @@ class Yeehaw {
                     this.players[action.playerIndex].stack -= this.currentBet;
                     this.pot += this.currentBet;
                     this.nextturn();
-                    return { result: "CALL", isValid: true };
+                    return { result: "CALL", isValid: true, playerIndex: action.playerIndex, value: action.value };
                 } else if (action.value >= this.players[action.playerIndex].stack){
                     this.pot += this.players[action.playerIndex].stack;
                     this.players[action.playerIndex].stack = 0; // player's bet makes him go all in
                     this.nextturn();
-                    return { result: "FORCED ALL IN", isValid: true };
+                    return { result: "FORCED ALL IN", isValid: true, playerIndex: action.playerIndex, value: action.value };
                 } else if (action.playerIndex == this.smallblind && this.currentBet == this.bb) {
                     this.pot += this.smallblind;
                     this.players[this.smallblind].stack -= this.smallblind;
                     this.nextturn();
+                    return { result: "CALL", isValid: true, playerIndex: action.playerIndex, value: action.value };
                 } else {
-                    return { result: "INVALID CALL", isValid: false };
+                    return { result: "INVALID CALL", isValid: false, playerIndex: action.playerIndex, value: action.value };
                 }
 
             case "RAISE":
@@ -136,30 +144,30 @@ class Yeehaw {
                         this.currentBet = action.value;
                         this.lastbet = action.playerIndex;
                         this.nextturn();
-                        return { result: "ALL IN", isValid: true };
+                        return { result: "ALL IN", isValid: true, playerIndex: action.playerIndex, value: action.value };
                     } else if (action.value >= this.currentBet + this.bb) {
                         this.pot += action.value;
                         this.players[action.playerIndex].stack -= action.value; // deduct bet from player stack
                         this.currentBet = action.value; 
                         this.lastbet = action.playerIndex;
                         this.nextturn();
-                        return { result: "RAISE", isValid: true };
+                        return { result: "RAISE", isValid: true, playerIndex: action.playerIndex, value: action.value };
                     } 
                 } else {
-                    return { result: "INVALID RAISE", isValid: true };
+                    return { result: "INVALID RAISE", isValid: true, playerIndex: action.playerIndex, value: action.value, playerIndex: action.playerIndex, value: action.value };
                 }
 
             case "FOLD":
-                let remove = this.notfolded.indexOf(playerIndex);
+                let remove = this.notfolded.indexOf(action.playerIndex);
                 if (remove == -1){
-                    return { result: "INVALID FOLD", isValid: false };
+                    return { result: "INVALID FOLD", isValid: false, playerIndex: action.playerIndex, value: action.value };
                 } 
                 this.notfolded.splice(remove, 1);
                 this.nextturn();
-                return { result: "FOLD", isValid: true };
+                return { result: "FOLD", isValid: true, playerIndex: action.playerIndex, value: action.value };
 
             default:
-                return { result: "INVALID ACTION", isValid: true };
+                return { result: "INVALID ACTION", isValid: true, playerIndex: action.playerIndex, value: action.value };
         }
     }
 
@@ -177,11 +185,11 @@ class Yeehaw {
         this.pot = this.sb + this.bb;
         this.currentBet = this.bb;
         this.players[this.smallblind].stack -= this.sb; 
-        if (this.players[this.smallblind].stack > 0){
+        if (this.players[this.smallblind].stack < 0){
             this.players[this.smallblind].stack = 0; // forced all-in cause of small blind
         }
         this.players[this.bigblind].stack -= this.bb;
-        if (this.players[this.bigblind].stack > 0){
+        if (this.players[this.bigblind].stack < 0){
             this.players[this.bigblind].stack = 0; // forced all-in cause of big blind
         }
         this.notfolded = [...Array(this.players.length).keys()]; // first round, so all players not folded
@@ -212,7 +220,7 @@ class Yeehaw {
     // for next betting phase (pre-flop, flop, turn, river, showdown), condition for each
     nextphase() {
         this.phase++;
-        switch (phase){
+        switch (this.phase){
             case 1:
                 this.flop(); // 3 cards to board
                 break;
