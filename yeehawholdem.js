@@ -358,7 +358,7 @@ class Yeehaw {
         
         
         for(i=0;i<showdowners.length;i++){
-            sevencards = board
+            sevencards = this.board
             sevencards.push(showdowners[i].hand1)
             sevencards.push(showdowners[i].hand2)
 

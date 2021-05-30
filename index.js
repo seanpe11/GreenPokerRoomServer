@@ -20,7 +20,7 @@ let status = { active:false }
 let players = [];
 io.on('connection', (socket) => {
   console.log("a user has connected")
-  socket.emit("UPDATE_GAME", game);
+  // socket.emit("UPDATE_GAME", game);
 
 
   socket.on("test", test => {
@@ -37,9 +37,13 @@ io.on('connection', (socket) => {
     } else {
       players.push(player);
       io.emit('PLAYER_JOIN', player);
-      console.log("PLAYER ADDED: " + players);
+      console.log("PLAYER ADDED: " + player);
     }
     
+  })
+
+  socket.on('FIND_PLAYER', player => {
+
   })
 
   socket.on('PLAYER_LEAVE', player => {

@@ -63,7 +63,7 @@ action = {playerIndex: 1, action:"RAISE", value:20} // smallblind
 console.log(game.playerAction(action))
 console.log(game.info)
 
-action = {playerIndex: 3, action:"CALL", value:5} // smallblind
+action = {playerIndex: 3, action:"CALL", value:20} // smallblind
 console.log(game.playerAction(action))
 console.log(game.info)
 
@@ -71,7 +71,7 @@ action = {playerIndex: 0, action:"FOLD", value:5} // smallblind
 console.log(game.playerAction(action))
 console.log(game.info)
 
-action = {playerIndex: 1, action:"CALL", value:5} // smallblind
+action = {playerIndex: 1, action:"CALL", value:20} // smallblind
 console.log(game.playerAction(action))
 console.log(game.info)
 
