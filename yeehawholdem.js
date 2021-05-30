@@ -71,7 +71,8 @@ class Yeehaw {
     }
 
     get info(){
-        let infostring = ""
+        let infostring = "\n"
+            + "board: " + this.board + "\n"
             + "phase: " + this.phase + " currentbet: " + this.currentBet + " toact: " + this.toact + " notfolded: " + this.notfolded + "\n"
             + "button: " + this.button + " sb: " + this.sb + " bb: " + this.bb + " pot: " + this.pot + "\n";
         // infostring.concat("currentbet: " + this.currentBet + "toact: " + this.toact + "notfolded: " + this.notfolded + "\n");
