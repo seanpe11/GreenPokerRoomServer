@@ -48,9 +48,6 @@ class Yeehaw {
     deck = []; // deck of cards, drawing without replacement
     board = []; // board of cards, numbers only
     phase = 0; // betting phase
-    handTypeNames = ['HIGH_CARD', 'PAIR', 'TWO_PAIR', 'THREE_OF_A_KIND', 'STRAIGHT', 'FLUSH', 'FULL_HOUSE', 'FOUR_OF_A_KIND', 'STRAIGHT_FLUSH'];
-    betPhases = ['Pre-Flop', 'Flop', 'Turn', 'River'];
-    
 
     // cards are represented as int 1-13 for the card value, 0-3 for suits
 
@@ -183,6 +180,7 @@ class Yeehaw {
             this.players[this.bigblind].stack = 0; // forced all-in cause of big blind
         }
         this.notfolded = [...Array(this.players.length).keys()]; // first round, so all players not folded
+        this.deal();
     }
 
     // for next player action
