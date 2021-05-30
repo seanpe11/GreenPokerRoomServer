@@ -183,7 +183,12 @@ class Yeehaw {
                     } 
                     
                     this.toact = this.notfolded[(this.notfolded.indexOf(this.toact) + 1) % this.notfolded.length]
+                    
                     this.notfolded.splice(remove, 1);
+                    if (this.toact == this.lastbet) // TODO: condition when bet has been matched
+                            { 
+                                this.nextphase();
+                            } 
                     return { result: "FOLD", isValid: true, playerIndex: action.playerIndex, value: action.value };
 
                 default:
