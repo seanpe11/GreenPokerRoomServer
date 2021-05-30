@@ -125,18 +125,29 @@ class Yeehaw {
                     if (action.value == this.currentBet){
                         this.players[action.playerIndex].stack -= this.currentBet;
                         this.pot += this.currentBet;
-                        this.nextturn();
+                        this.toact = this.notfolded[(this.notfolded.indexOf(this.toact) + 1) % this.notfolded.length]
+                        if (this.toact == this.lastbet) // TODO: condition when bet has been matched
+                            { 
+                                this.nextphase();
+                            } 
                         return { result: "CALL", isValid: true, playerIndex: action.playerIndex, value: action.value };
                     } else if (action.value >= this.players[action.playerIndex].stack){
                         this.pot += this.players[action.playerIndex].stack;
                         this.players[action.playerIndex].stack = 0; // player's bet makes him go all in
-                        this.nextturn();
+                        this.toact = this.notfolded[(this.notfolded.indexOf(this.toact) + 1) % this.notfolded.length]
+                        if (this.toact == this.lastbet) // TODO: condition when bet has been matched
+                            { 
+                                this.nextphase();
+                            } 
                         return { result: "FORCED ALL IN", isValid: true, playerIndex: action.playerIndex, value: action.value };
                     } else if (action.playerIndex == this.smallblind && this.currentBet == this.bb) {
                         this.players[this.smallblind].stack =this.players[this.smallblind].stack - (this.bigblind - this.smallblind);
                         this.pot = this.pot + (this.bigblind - this.smallblind);
-                        console.log("inside call sb")
-                        this.nextturn();
+                        this.toact = this.notfolded[(this.notfolded.indexOf(this.toact) + 1) % this.notfolded.length]
+                        if (this.toact == this.lastbet) // TODO: condition when bet has been matched
+                            { 
+                                this.nextphase();
+                            } 
                         return { result: "CALL", isValid: true, playerIndex: action.playerIndex, value: action.value };
                     } else {
                         return { result: "INVALID CALL", isValid: false, playerIndex: action.playerIndex, value: action.value };
@@ -150,14 +161,14 @@ class Yeehaw {
                             this.players[action.playerIndex].stack = 0; // player's bet makes him go all in
                             this.currentBet = action.value;
                             this.lastbet = action.playerIndex;
-                            this.nextturn();
+                            this.toact = this.notfolded[(this.notfolded.indexOf(this.toact) + 1) % this.notfolded.length]
                             return { result: "ALL IN", isValid: true, playerIndex: action.playerIndex, value: action.value };
                         } else if (action.value >= this.currentBet + this.bb) {
                             this.pot += action.value;
                             this.players[action.playerIndex].stack -= action.value; // deduct bet from player stack
                             this.currentBet = action.value; 
                             this.lastbet = action.playerIndex;
-                            this.nextturn();
+                            this.toact = this.notfolded[(this.notfolded.indexOf(this.toact) + 1) % this.notfolded.length]
                             return { result: "RAISE", isValid: true, playerIndex: action.playerIndex, value: action.value };
                         } 
                     } else {
