@@ -5,6 +5,7 @@ const port = process.env.PORT || 3000;
 const { Socket } = require('dgram');
 const yeehaw = require('./yeehawholdem.js')
 
+
 app.get('/', (req, res) => {
   res.sendFile(__dirname + '/index.html');
 });
@@ -28,6 +29,7 @@ io.on('connection', (socket) => {
 
   socket.on('PLAYER_JOIN', player => {
     player = new yeehaw.Player(player.name);
+    stack = new yeehaw.Player(player.stack);
     
     if (players.length == 4){
       io.emit('TABLE_FULL', game);
@@ -35,7 +37,11 @@ io.on('connection', (socket) => {
     } else {
       players.push(player);
       io.emit('PLAYER_JOIN', player);
+<<<<<<< HEAD
+      console.log("PLAYER ADDED: " + player.name);
+=======
       console.log("PLAYER ADDED: " + players);
+>>>>>>> fdef64ccba6db1c63c909d807153749fe8ce0196
     }
     
   })
@@ -66,6 +72,7 @@ io.on('connection', (socket) => {
   })
 
   socket.on('PLAYER_ACTION', action => {
+    console.log("inside socket")
     let gamestate = game.playerAction(action);
     if (gamestate.isValid)
       io.emit("PLAYER_ACTION", { game: game, gamestate: gamestate });
@@ -75,8 +82,10 @@ io.on('connection', (socket) => {
   }); 
 
 
+
 });
 
 http.listen(port, () => {
+  
   console.log(`Socket.IO server running at http://localhost:${port}/`);
 });
