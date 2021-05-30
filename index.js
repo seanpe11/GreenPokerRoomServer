@@ -37,11 +37,7 @@ io.on('connection', (socket) => {
     } else {
       players.push(player);
       io.emit('PLAYER_JOIN', player);
-<<<<<<< HEAD
-      console.log("PLAYER ADDED: " + player.name);
-=======
       console.log("PLAYER ADDED: " + players);
->>>>>>> fdef64ccba6db1c63c909d807153749fe8ce0196
     }
     
   })

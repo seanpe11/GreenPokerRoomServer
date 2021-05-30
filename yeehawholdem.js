@@ -66,13 +66,8 @@ class Yeehaw {
         this.pot = this.sb + this.bb;
         this.sidepot = this.sb + this.bb; // in case someone goes all in and there are other players still betting after one goes all in
         this.currentBet = this.bb; // bet to match or raise to stay in the pot
-<<<<<<< HEAD
-        this.notfolded = [];// index of players not folded
-        this.newRound();
-=======
         this.notfolded = [...Array(this.players.length).keys()];// index of players not folded
         this.deal();
->>>>>>> 0fc28a3935c10cfc458908faf7b5313dbf39ef37
     }
 
     get info(){
@@ -155,14 +150,14 @@ class Yeehaw {
                             this.players[action.playerIndex].stack = 0; // player's bet makes him go all in
                             this.currentBet = action.value;
                             this.lastbet = action.playerIndex;
-                            this.nextturn();
+                            this.toact = this.notfolded[(this.notfolded.indexOf(this.toact) + 1) % this.notfolded.length]
                             return { result: "ALL IN", isValid: true, playerIndex: action.playerIndex, value: action.value };
                         } else if (action.value >= this.currentBet + this.bb) {
                             this.pot += action.value;
                             this.players[action.playerIndex].stack -= action.value; // deduct bet from player stack
                             this.currentBet = action.value; 
                             this.lastbet = action.playerIndex;
-                            this.nextturn();
+                            this.toact = this.notfolded[(this.notfolded.indexOf(this.toact) + 1) % this.notfolded.length]
                             return { result: "RAISE", isValid: true, playerIndex: action.playerIndex, value: action.value };
                         } 
                     } else {
