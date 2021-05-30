@@ -172,11 +172,11 @@ class Yeehaw {
         this.pot = this.sb + this.bb;
         this.currentBet = this.bb;
         this.players[this.smallblind].stack -= this.sb; 
-        if (this.players[this.smallblind].stack > 0){
+        if (this.players[this.smallblind].stack < 0){
             this.players[this.smallblind].stack = 0; // forced all-in cause of small blind
         }
         this.players[this.bigblind].stack -= this.bb;
-        if (this.players[this.bigblind].stack > 0){
+        if (this.players[this.bigblind].stack < 0){
             this.players[this.bigblind].stack = 0; // forced all-in cause of big blind
         }
         this.notfolded = [...Array(this.players.length).keys()]; // first round, so all players not folded
