@@ -128,6 +128,7 @@ class Yeehaw {
                     this.pot += this.smallblind;
                     this.players[this.smallblind].stack -= this.smallblind;
                     this.nextturn();
+                    return { result: "CALL", isValid: true, playerIndex: action.playerIndex, value: action.value };
                 } else {
                     return { result: "INVALID CALL", isValid: false, playerIndex: action.playerIndex, value: action.value };
                 }
@@ -154,7 +155,7 @@ class Yeehaw {
                 }
 
             case "FOLD":
-                let remove = this.notfolded.indexOf(playerIndex);
+                let remove = this.notfolded.indexOf(action.playerIndex);
                 if (remove == -1){
                     return { result: "INVALID FOLD", isValid: false, playerIndex: action.playerIndex, value: action.value };
                 } 
