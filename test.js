@@ -4,20 +4,38 @@ players = [new yeehaw.Player("Sean"), new yeehaw.Player("Rasheed"), new yeehaw.P
 game = new yeehaw.Yeehaw(players, 1, 2);
 console.log(game.info)
 
+action = {playerIndex: 3, action:"CALL", value:2} 
+console.log(game.playerAction(action))
+console.log(game.info)
+
 action = {playerIndex: 0, action:"CALL", value:2}
-game.playerAction(action)
+console.log(game.playerAction(action))
 console.log(game.info)
 
-action = {playerIndex: 1, action:"CALL", value:2}
-game.playerAction(action)
+action = {playerIndex: 1, action:"CALL", value:1} // smallblind
+console.log(game.playerAction(action))
 console.log(game.info)
 
-action = {playerIndex: 2, action:"CALL", value:1} // smallblind
-game.playerAction(action)
+action = {playerIndex: 2, action:"CHECK", value:1}  // bigblind
+console.log(game.playerAction(action))
 console.log(game.info)
 
-action = {playerIndex: 3, action:"CHECK", value:1} // smallblind
-game.playerAction(action)
+console.log("-----------------FLOP---------------")
+
+//flop
+action = {playerIndex: 1, action:"CHECK", value:1} // smallblind
+console.log(game.playerAction(action))
+console.log(game.info)
+
+action = {playerIndex: 2, action:"FOLD", value:1}  // bigblind
+console.log(game.playerAction(action))
+console.log(game.info)
+
+action = {playerIndex: 3, action:"CHECK", value:2} 
+console.log(game.playerAction(action))
 console.log(game.info)
 
 
+action = {playerIndex: 0, action:"CHECK", value:2}
+console.log(game.playerAction(action))
+console.log(game.info)

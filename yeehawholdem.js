@@ -67,7 +67,7 @@ class Yeehaw {
         this.sidepot = this.sb + this.bb; // in case someone goes all in and there are other players still betting after one goes all in
         this.currentBet = this.bb; // bet to match or raise to stay in the pot
         this.notfolded = [...Array(this.players.length).keys()];// index of players not folded
-        this.newRound();
+        this.deal();
     }
 
     get info(){
@@ -102,74 +102,83 @@ class Yeehaw {
     // ----- value: bet value of action
     // ----- action: str of what player did
     playerAction(action){
-        if (action.playerIndex != this.toact) { return { result: "INVALID PLAYER", isValid: false } };
-        console.log("INSIDE ACTION", action)
-        switch(action.action){
-            case "CHECK":
-                if(action.playerIndex == this.bigblind && this.currentBet == this.bb){ 
-                    this.nextturn();
-                    return { result: "CHECK", isValid: true, playerIndex: action.playerIndex, value: action.value };
-                } else if (this.currentBet == 0) {
-                    this.nextturn();
-                    return { result: "CHECK", isValid: true, playerIndex: action.playerIndex, value: action.value };
-                } else {
-                    return { result: "INVALID CHECK", isValid: false, playerIndex: action.playerIndex, value: action.value };
-                }
+        if (action.playerIndex != this.toact) { 
+            return { result: "INVALID PLAYER", isValid: false } 
+        }else{
+            console.log("INSIDE ACTION", action)
+            switch(action.action){
+                case "CHECK":
+                    if( action.playerIndex == this.bigblind && this.currentBet == this.bb){ 
+            
+                            this.nextturn();
+                        return { result: "CHECK", isValid: true, playerIndex: action.playerIndex, value: action.value };
+                    } else if (this.currentBet == 0 ) {
+                            this.nextturn();
+                        return { result: "CHECK", isValid: true, playerIndex: action.playerIndex, value: action.value };
+                    } else if(action.playerIndex != this.bigblind && this.currentBet != 0 )
+                    {
+                        return { result: "INVALID CHECK", isValid: false, playerIndex: action.playerIndex, value: action.value };
+                    }
+                    break;
 
-            case "CALL":
-                if (action.value == this.currentBet){
-                    this.players[action.playerIndex].stack -= this.currentBet;
-                    this.pot += this.currentBet;
-                    this.nextturn();
-                    return { result: "CALL", isValid: true, playerIndex: action.playerIndex, value: action.value };
-                } else if (action.value >= this.players[action.playerIndex].stack){
-                    this.pot += this.players[action.playerIndex].stack;
-                    this.players[action.playerIndex].stack = 0; // player's bet makes him go all in
-                    this.nextturn();
-                    return { result: "FORCED ALL IN", isValid: true, playerIndex: action.playerIndex, value: action.value };
-                } else if (action.playerIndex == this.smallblind && this.currentBet == this.bb) {
-                    this.pot += this.smallblind;
-                    this.players[this.smallblind].stack -= this.smallblind;
-                    this.nextturn();
-                    return { result: "CALL", isValid: true, playerIndex: action.playerIndex, value: action.value };
-                } else {
-                    return { result: "INVALID CALL", isValid: false, playerIndex: action.playerIndex, value: action.value };
-                }
-
-            case "RAISE":
-                if(action.value > this.currentBet){
-                    if (action.value >= this.players[action.playerIndex].stack){
-                        this.pot += this.player[action.playerIndex].stack;
+                case "CALL":
+                    if (action.value == this.currentBet){
+                        this.players[action.playerIndex].stack -= this.currentBet;
+                        this.pot += this.currentBet;
+                        this.nextturn();
+                        return { result: "CALL", isValid: true, playerIndex: action.playerIndex, value: action.value };
+                    } else if (action.value >= this.players[action.playerIndex].stack){
+                        this.pot += this.players[action.playerIndex].stack;
                         this.players[action.playerIndex].stack = 0; // player's bet makes him go all in
-                        this.currentBet = action.value;
-                        this.lastbet = action.playerIndex;
                         this.nextturn();
-                        return { result: "ALL IN", isValid: true, playerIndex: action.playerIndex, value: action.value };
-                    } else if (action.value >= this.currentBet + this.bb) {
-                        this.pot += action.value;
-                        this.players[action.playerIndex].stack -= action.value; // deduct bet from player stack
-                        this.currentBet = action.value; 
-                        this.lastbet = action.playerIndex;
+                        return { result: "FORCED ALL IN", isValid: true, playerIndex: action.playerIndex, value: action.value };
+                    } else if (action.playerIndex == this.smallblind && this.currentBet == this.bb) {
+                        this.players[this.smallblind].stack =this.players[this.smallblind].stack - (this.bigblind - this.smallblind);
+                        this.pot = this.pot + (this.bigblind - this.smallblind);
+                        console.log("inside call sb")
                         this.nextturn();
-                        return { result: "RAISE", isValid: true, playerIndex: action.playerIndex, value: action.value };
+                        return { result: "CALL", isValid: true, playerIndex: action.playerIndex, value: action.value };
+                    } else {
+                        return { result: "INVALID CALL", isValid: false, playerIndex: action.playerIndex, value: action.value };
+                    }
+                    break;
+
+                case "RAISE":
+                    if(action.value > this.currentBet){
+                        if (action.value >= this.players[action.playerIndex].stack){
+                            this.pot += this.player[action.playerIndex].stack;
+                            this.players[action.playerIndex].stack = 0; // player's bet makes him go all in
+                            this.currentBet = action.value;
+                            this.lastbet = action.playerIndex;
+                            this.nextturn();
+                            return { result: "ALL IN", isValid: true, playerIndex: action.playerIndex, value: action.value };
+                        } else if (action.value >= this.currentBet + this.bb) {
+                            this.pot += action.value;
+                            this.players[action.playerIndex].stack -= action.value; // deduct bet from player stack
+                            this.currentBet = action.value; 
+                            this.lastbet = action.playerIndex;
+                            this.nextturn();
+                            return { result: "RAISE", isValid: true, playerIndex: action.playerIndex, value: action.value };
+                        } 
+                    } else {
+                        return { result: "INVALID RAISE", isValid: true, playerIndex: action.playerIndex, value: action.value, playerIndex: action.playerIndex, value: action.value };
+                    }
+                    break;
+
+                case "FOLD":
+                    let remove = this.notfolded.indexOf(action.playerIndex);
+                    if (remove == -1){
+                        return { result: "INVALID FOLD", isValid: false, playerIndex: action.playerIndex, value: action.value };
                     } 
-                } else {
-                    return { result: "INVALID RAISE", isValid: true, playerIndex: action.playerIndex, value: action.value, playerIndex: action.playerIndex, value: action.value };
-                }
+                    this.notfolded.splice(remove, 1);
+                    this.nextturn();
+                    return { result: "FOLD", isValid: true, playerIndex: action.playerIndex, value: action.value };
 
-            case "FOLD":
-                let remove = this.notfolded.indexOf(action.playerIndex);
-                if (remove == -1){
-                    return { result: "INVALID FOLD", isValid: false, playerIndex: action.playerIndex, value: action.value };
-                } 
-                this.notfolded.splice(remove, 1);
-                this.nextturn();
-                return { result: "FOLD", isValid: true, playerIndex: action.playerIndex, value: action.value };
-
-            default:
-                return { result: "INVALID ACTION", isValid: true, playerIndex: action.playerIndex, value: action.value };
-        }
+                default:
+                    return { result: "INVALID ACTION", isValid: true, playerIndex: action.playerIndex, value: action.value };
+            }
     }
+}
 
 
     // function after showdown
@@ -198,7 +207,7 @@ class Yeehaw {
 
     // for next player action
     nextturn() {
-        this.toact = this.notfolded[(this.notfolded.indexOf(this.toact) + 1) % this.notfolded.length];
+        
         // if someone goes all in, skip their turn but don't fold them
         if (this.players[this.toact].stack == 0){
             this.toact = this.notfolded[(this.notfolded.indexOf(this.toact) + 1) % this.notfolded.length];
@@ -207,13 +216,17 @@ class Yeehaw {
         // set condition when betting ends
         if (this.toact == this.lastbet) // TODO: condition when bet has been matched
         { 
+
             this.nextphase();
         } 
+        
         else if (this.notfolded.length == 1) // all players have folded except one
         { 
             this.players[this.notfolded[0]].stack += this.pot;
             // something about highlighting winner
             this.newRound();
+        }else{
+            this.toact = this.notfolded[(this.notfolded.indexOf(this.toact) + 1) % this.notfolded.length];
         }
     }
 
@@ -277,15 +290,15 @@ class Yeehaw {
 
     // finds first player after the button; this player is first to act for next phase of betting
     findFirstToAct(){
-        let i;
-        let mapped = this.notfolded;
-        mapped.push(...mapped.map((value) => { return value + this.players.length } ));
-        for(i=0;i<mapped.length;i++){
-            if (mapped[i] > this.button){
-                this.toact = mapped[i] % this.players.length;
-                this.lastbet = this.toact;
-                break;
-            }
+        let i
+        let toactSB = this.notfolded.indexOf(this.smallblind)
+        let toactBB = this.notfolded.indexOf(this.bigblind)
+        if(toactSB == -1){
+            this.toact = this.bigblind;
+        } else if(toactBB == -1 && toactSB == -1){
+            this.toact == this.underthegun;
+        }else{
+            this.toact = this.smallblind
         }
     }
 
