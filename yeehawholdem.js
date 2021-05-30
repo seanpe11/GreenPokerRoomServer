@@ -170,8 +170,9 @@ class Yeehaw {
                     if (remove == -1){
                         return { result: "INVALID FOLD", isValid: false, playerIndex: action.playerIndex, value: action.value };
                     } 
+                    
+                    this.toact = this.notfolded[(this.notfolded.indexOf(this.toact) + 1) % this.notfolded.length]
                     this.notfolded.splice(remove, 1);
-                    this.nextturn();
                     return { result: "FOLD", isValid: true, playerIndex: action.playerIndex, value: action.value };
 
                 default:
@@ -225,7 +226,7 @@ class Yeehaw {
             // something about highlighting winner
             this.newRound();
         }else{
-            this.toact = this.notfolded[(this.notfolded.indexOf(this.toact) + 1) % this.players.length]
+            this.toact = this.notfolded[(this.notfolded.indexOf(this.toact) + 1) % this.notfolded.length]
         }
     }
 
