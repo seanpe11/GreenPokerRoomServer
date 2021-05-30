@@ -11,7 +11,7 @@ function shuffle(a) {
 
 class Player {
     name = "";
-    stack = 100;
+    stack = 1000;
     score = 0;
     isWinner = 0;
     hand1 = {};
@@ -87,6 +87,8 @@ class Yeehaw {
         return this.betPhases[this.phase];
     }
 
+
+
     // player actions: returns string whether 
     // action is a json object with the following properties
     // ----- playerIndex: index of player who made action
@@ -94,7 +96,7 @@ class Yeehaw {
     // ----- action: str of what player did
     playerAction(action){
         if (action.playerIndex != this.toact) { return { result: "INVALID PLAYER", isValid: false } };
-
+        console.log("INSIDE ACTION", action)
         switch(action.action){
             case "CHECK":
                 if(action.playerIndex == this.bigblind && this.currentBet == this.bb){ 
