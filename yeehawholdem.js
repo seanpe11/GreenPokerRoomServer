@@ -113,7 +113,7 @@ class Yeehaw {
                 case "CHECK":
                     if( action.playerIndex == this.bigblind && this.currentBet == this.bb){ 
             
-                        this.nextturn();
+                        this.nextphase();
                         return { result: "CHECK", isValid: true, playerIndex: action.playerIndex, value: action.value };
                     } else if (this.currentBet == 0 ) {
                             this.nextturn();
@@ -128,21 +128,31 @@ class Yeehaw {
                     if (action.value == this.currentBet){
                         this.players[action.playerIndex].stack -= this.currentBet;
                         this.pot += this.currentBet;
-                        this.toact = this.notfolded[(this.notfolded.indexOf(this.toact) + 1) % this.notfolded.length]
-                        if (this.toact == this.lastbet) // TODO: condition when bet has been matched
-                            { 
-                                this.nextphase();
-                            } 
-                        
+                        if(this.toact == this.lastbet){
+                            this.toact = this.notfolded[(this.notfolded.indexOf(this.toact) + 1) % this.notfolded.length]
+                            this.nextphase();
+                        }else if(this.toact != this.lastbet){
+                            this.toact = this.notfolded[(this.notfolded.indexOf(this.toact) + 1) % this.notfolded.length]
+                            // if (this.toact == this.lastbet) // TODO: condition when bet has been matched
+                            //     { 
+                            //         this.nextphase();
+                            //     } 
+                            this.nextphase();
+                        }
                         return { result: "CALL", isValid: true, playerIndex: action.playerIndex, value: action.value };
                     } else if (action.value >= this.players[action.playerIndex].stack){
                         this.pot += this.players[action.playerIndex].stack;
                         this.players[action.playerIndex].stack = 0; // player's bet makes him go all in
-                        this.toact = this.notfolded[(this.notfolded.indexOf(this.toact) + 1) % this.notfolded.length]
-                        if (this.toact == this.lastbet) // TODO: condition when bet has been matched
-                            { 
-                                this.nextphase();
-                            } 
+                        if(this.toact == this.lastbet){
+                            this.toact = this.notfolded[(this.notfolded.indexOf(this.toact) + 1) % this.notfolded.length]
+                            this.nextphase();
+                        }else{
+                            this.toact = this.notfolded[(this.notfolded.indexOf(this.toact) + 1) % this.notfolded.length]
+                            if (this.toact == this.lastbet) // TODO: condition when bet has been matched
+                                { 
+                                    this.nextphase();
+                                } 
+                        }
                         return { result: "FORCED ALL IN", isValid: true, playerIndex: action.playerIndex, value: action.value };
                     } else if (action.playerIndex == this.smallblind && this.currentBet == this.bb) {
                         this.players[this.smallblind].stack =this.players[this.smallblind].stack - (this.bigblind - this.smallblind);
@@ -277,6 +287,7 @@ class Yeehaw {
                     }
                 if(count== 1){
                     console.log("Player " + [temp] + "is the Winner")
+                    console.log("Stack: " + this.players[temp].stack)
                 }else if(count > 1){
                     console.log("Split Pot")
                 }   
@@ -384,7 +395,7 @@ class Yeehaw {
             
             card1 = showdowners[i].hand1
             card2 = showdowners[i].hand2
-            sevencards = tempboard
+            sevencards.push(...this.board)
             sevencards.push(card1)
             sevencards.push(card2)
             tempcards = sevencards
@@ -449,13 +460,7 @@ class Yeehaw {
             console.log("PLAYER " + this.notfolded[i] + " score " + showdowners[i].score)
             console.log("PLAYER " + this.notfolded[i])
             console.log(tempcards)
-            sevencards = []
-            sevencards.length = 0
-            tempcards = []
-            tempcards.length = 0
-            card1 = 0
-            card2 = 0
-
+            sevencards.splice(0, sevencards.length)
         }
 
         for(i=0;i<showdowners.length-1;i++){
@@ -601,7 +606,7 @@ class Yeehaw {
             let suit = counts.indexOf(5);
             for (i=0;i<seven.length;i++){
                 if(seven[i].suit == suit){
-                    bestFive.push(seven[i]);
+                    bestfive.push(seven[i]);
                 }
             }
             return { isThis:true, score: 6, bestFive: bestfive}
