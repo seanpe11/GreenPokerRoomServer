@@ -15,10 +15,10 @@ app.get('/playerTest', (req, res) => {
 })
 
 let game = { notstarted: true };
-let status = { active: false }
+let gaming = true;
 let players = [];
 
-players = [new yeehaw.Player("Sean"), new yeehaw.Player("Rasheed"), new yeehaw.Player("Jolo"), new yeehaw.Player("Bags")]
+players = [new yeehaw.Player("Sean")]
 // game = new yeehaw.Yeehaw(players, 10, 20)
 // console.log("GAME INITIALIZED")
 
@@ -35,16 +35,6 @@ io.on('connection', (socket) => {
   //   console.log(JSON.stringify(game.players))
   // })
 
-  socket.on('PLAYER_READY', username => {
-    let player = players.map( (val) => {return val.name}).indexOf(username);
-    console.log("Player says he is ready");
-    if (player != -1){
-      players[player].ready = true;
-      console.log(players[player].name + " is ready.")
-    }
-    console.log("Waiting for players " + players.filter( (val) => { return !val.ready }).map( (val) => {return val.name}).toString())
-               
-  })
 
   socket.on('PLAYER_JOIN', requester => {
     
@@ -82,7 +72,7 @@ io.on('connection', (socket) => {
       io.emit('UPDATE_GAME', game);
       console.log("GAME STARTED: " + game.info);
     } else {
-      io.emit('TOAST', {TOAST: "Not enough players joined!"});
+      io.emit('TOAST', "Not enough players joined!");
       console.log("NO PLAYERS");
       io.emit('WAITING_READY');
     }
@@ -104,7 +94,10 @@ io.on('connection', (socket) => {
   }); 
 
   socket.on('UPDATE_CLIENT', (playername) => {
-    io.to(socket.id).emit('UPDATE_GAME', game);
+    if (gaming)
+      io.to(socket.id).emit('UPDATE_GAME', game);
+    else
+      io.to(socket.id).emit('WAITING', players);
     console.log("UPDATE requested by player " + playername);
   })
 
