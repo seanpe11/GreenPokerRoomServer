@@ -36,10 +36,11 @@ io.on('connection', (socket) => {
   // })
 
   socket.on('PLAYER_READY', username => {
-    let player = players.indexOf(username);
+    let player = players.map( (val) => {return val.name}).indexOf(username);
     console.log("Player says he is ready");
     if (player != -1){
       players[player].ready = true;
+      console.log(p)
     }
     console.log("Waiting for players " + players.filter( (val) => { return !val.ready }).map( (val) => {return val.name}).toString())
                
