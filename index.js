@@ -2,7 +2,6 @@ const app = require('express')();
 const http = require('http').Server(app);
 const io = require('socket.io')(http);
 const port = process.env.PORT || 3000;
-const { Socket } = require('dgram');
 const yeehaw = require('./yeehawholdem.js')
 
 
@@ -79,7 +78,7 @@ io.on('connection', (socket) => {
       io.emit('UPDATE_GAME', game);
       console.log("GAME STARTED: " + game.info);
     } else {
-      io.emit('TOAST', {TOAST: "TOAST: Not enough players joined!"});
+      io.emit('TOAST', {TOAST: "Not enough players joined!"});
       console.log("NO PLAYERS");
     }
     
@@ -96,7 +95,7 @@ io.on('connection', (socket) => {
     if (gamestate.isValid)
       io.emit("PLAYER_ACTION", { game: game, gamestate: gamestate });
     else
-      io.emit('TOAST', "It's " + game.players[game.toact] +" turn to act!");
+      io.emit('TOAST', "It's " + game.players[game.toact].name +" turn to act!");
     console.log("PLAYER_ACTION: " + gamestate.result);
   }); 
 
