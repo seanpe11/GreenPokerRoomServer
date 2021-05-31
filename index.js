@@ -2,7 +2,6 @@ const app = require('express')();
 const http = require('http').Server(app);
 const io = require('socket.io')(http);
 const port = process.env.PORT || 3000;
-const { Socket } = require('dgram');
 const yeehaw = require('./yeehawholdem.js')
 
 
@@ -15,31 +14,58 @@ app.get('/playerTest', (req, res) => {
   res.send(wow);
 })
 
-let game = {phase: -1};
-let status = { active:false }
+let game = { notstarted: true };
+let status = { active: false }
 let players = [];
+let ready = false;
+
+players = [new yeehaw.Player("Sean"), new yeehaw.Player("Rasheed"), new yeehaw.Player("Jolo"), new yeehaw.Player("Bags")]
+game = new yeehaw.Yeehaw(players, 10, 20)
+console.log("GAME INITIALIZED")
+
 io.on('connection', (socket) => {
   console.log("a user has connected")
-  socket.emit("UPDATE_GAME", game);
+  // socket.emit("UPDATE_GAME", game);
 
 
-  socket.on("test", test => {
-    console.log(test);
+  socket.on("test", () => {
+    players = [new yeehaw.Player("Sean"), new yeehaw.Player("Rasheed"), new yeehaw.Player("Jolo"), new yeehaw.Player("Bags")]
+    game = new yeehaw.Yeehaw(players, 10, 20)
+    socket.emit("UPDATE_GAME", game)
+    console.log("TEST")
+    console.log(JSON.stringify(game.players))
   })
 
-  socket.on('PLAYER_JOIN', player => {
-    player = new yeehaw.Player(player.name);
-    stack = new yeehaw.Player(player.stack);
+  socket.on('PLAYER_JOIN', requester => {
     
-    if (players.length == 4){
-      io.emit('TABLE_FULL', game);
+    let alreadyplaying = players.map((val) => {return val.name}).indexOf(requester.name)
+
+    if ( alreadyplaying != -1 ){
+
+      player = players[alreadyplaying];
+      player.playerPos = alreadyplaying;
+      io.to(socket.id).emit('JOIN_CONFIRM', player)
+      console.log("PLAYER REJOIN");
+      io.emit('TOAST', "Player " + player.name + " rejoined the table.");
+
+    }
+    else if (players.length == 4){
+      io.to(socket.id).emit('TOAST', "Table is full!");
       console.log("TABLE FULL NO ADD: " + player);
     } else {
+      player = new yeehaw.Player(requester.name);
       players.push(player);
+      player.playerPos = players.map((val) => {return val.name}).indexOf(player.name)
       io.emit('PLAYER_JOIN', player);
-      console.log("PLAYER ADDED: " + players);
+      io.to(socket.id).emit('JOIN_CONFIRM', player);
+      console.log("PLAYER ADDED: " + player);
+
     }
     
+  })
+
+  socket.on('FIND_PLAYER', player => {
+
   })
 
   socket.on('PLAYER_LEAVE', player => {
@@ -51,31 +77,35 @@ io.on('connection', (socket) => {
 
   socket.on('START_GAME', data => {
     if (players.length>1){
-      game = new yeehaw.Yeehaw(players, data.sb, data.bb);
+      game = new yeehaw.Yeehaw(players, 10, 20);
       io.emit('UPDATE_GAME', game);
       console.log("GAME STARTED: " + game.info);
     } else {
-      io.emit('ERROR', {error: "Error: Not enough players joined!"});
+      io.emit('TOAST', {TOAST: "Not enough players joined!"});
       console.log("NO PLAYERS");
     }
     
   })
 
   socket.on('RESET_GAME', data => {
-    game = new yeehaw.Yeehaw(players, data.sb, data.bb);
+    game = new yeehaw.Yeehaw(players, 10, 20);
     io.emit('UPDATE_GAME', game);
     console.log("GAME RESET: " + game.info);
   })
 
   socket.on('PLAYER_ACTION', action => {
-    console.log("inside socket")
     let gamestate = game.playerAction(action);
     if (gamestate.isValid)
       io.emit("PLAYER_ACTION", { game: game, gamestate: gamestate });
     else
-      io.emit('ERROR', "Error: Player can't make that move!");
-    console.log("PLAYER_ACTION: " + game.info);
+      io.to(socket.id).emit('TOAST', "It's " + game.players[game.toact].name +" turn to act!");
+    console.log("PLAYER_ACTION: " + gamestate.result);
   }); 
+
+  socket.on('UPDATE_CLIENT', (playername) => {
+    io.to(socket.id).emit('UPDATE_GAME', game);
+    console.log("UPDATE requested by player " + playername);
+  })
 
 
 
