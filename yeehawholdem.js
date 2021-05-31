@@ -298,10 +298,6 @@ class Yeehaw {
                 }   
                 break;
             case 5:
-                let unfolded = []
-                for(i=0;i<this.notfolded.length;i++){
-                    unfolded.push(this.players[this.notfolded[i]])
-                }
                 break;
         }
     }
