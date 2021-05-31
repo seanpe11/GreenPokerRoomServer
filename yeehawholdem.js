@@ -19,6 +19,7 @@ class Player {
     best = []; // best 5 cards
     constructor(name){
         this.name = name;
+        this.ready = false;
     }
 }
 
