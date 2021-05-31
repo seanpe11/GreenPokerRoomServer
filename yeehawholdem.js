@@ -193,7 +193,7 @@ class Yeehaw {
                         this.players[this.notfolded[0]].isWinner = true
                         this.players[this.notfolded[0]].stack = this.players[this.notfolded[0]].stack + this.pot
                         this.phase = 10
-                        this.winner = this.players[this.notfolded[0]];
+                        this.winnerString = "Player " + this.players[temp].name + "wins " + this.pot
                     }
                     if (this.toact == this.lastbet) // TODO: condition when bet has been matched
                             { 
@@ -285,7 +285,7 @@ class Yeehaw {
                         if(this.players[i].isWinner == true){
                             console.log("Player " + [temp] + "is the Winner ")
                             console.log("Stack: " + this.players[temp].stack)
-                            this.winner = this.players[temp]
+                            this.winnerString = "Player " + this.players[temp].name + "wins " + this.pot
                         }
                     }
                     
@@ -294,10 +294,11 @@ class Yeehaw {
                 }   
                 break;
             case 5:
-                let unfolded = []
-                for(i=0;i<this.notfolded.length;i++){
-                    unfolded.push(this.players[this.notfolded[i]])
-                }
+                break;
+                // this.unfolded = []
+                // for(i=0;i<this.notfolded.length;i++){
+                //     unfolded.push(this.players[this.notfolded[i]])
+                // }
         }
     }
 
