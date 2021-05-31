@@ -17,7 +17,6 @@ app.get('/playerTest', (req, res) => {
 let game = { notstarted: true };
 let status = { active: false }
 let players = [];
-let ready = false;
 
 players = [new yeehaw.Player("Sean"), new yeehaw.Player("Rasheed"), new yeehaw.Player("Jolo"), new yeehaw.Player("Bags")]
 // game = new yeehaw.Yeehaw(players, 10, 20)
@@ -41,12 +40,8 @@ io.on('connection', (socket) => {
     if (player != -1){
       players[player].ready = true;
     }
-    console.log("Waiting for: " + Array.toString(
-                                      players.filter( (val) => {  
-                                          return !val.ready
-                                        }).map( (val) => {return val.name} )
-                                      )
-    )
+    console.log("Waiting for players " + players.filter( (val) => { return !val.ready }).map( (val) => {return val.name}).toString())
+               
   })
 
   socket.on('PLAYER_JOIN', requester => {
@@ -80,13 +75,14 @@ io.on('connection', (socket) => {
 
   // starters and stoppers
   socket.on('START_GAME', data => {
-    if (players.length>1){
+    if (players.length==4){
       game = new yeehaw.Yeehaw(players, 10, 20);
       io.emit('UPDATE_GAME', game);
       console.log("GAME STARTED: " + game.info);
     } else {
       io.emit('TOAST', {TOAST: "Not enough players joined!"});
       console.log("NO PLAYERS");
+      io.emit('WAITING_READY');
     }
     
   })
