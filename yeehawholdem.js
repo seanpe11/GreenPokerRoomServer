@@ -296,6 +296,7 @@ class Yeehaw {
                 for(i=0;i<this.notfolded.length;i++){
                     unfolded.push(this.players[this.notfolded[i]])
                 }
+                break;
         }
     }
 
@@ -406,31 +407,31 @@ class Yeehaw {
             
 
             // get best hand for each    
-            let straightflush = this.evalStraightFlush(tempcards)
+            straightflush = this.evalStraightFlush(tempcards)
             // console.log("1")
             // console.log(tempcards)
-            let quads = this.evalQuads(tempcards)
+            quads = this.evalQuads(tempcards)
             // console.log("2")
             // console.log(tempcards)
-            let fullhouse = this.evalFullHouse(tempcards)
+            fullhouse = this.evalFullHouse(tempcards)
             // console.log("3")
             // console.log(tempcards)
-            let flush = this.evalFlush(tempcards)
+            flush = this.evalFlush(tempcards)
             // console.log("4")
             // console.log(tempcards)
-            let straight = this.evalStraight(tempcards)
+            straight = this.evalStraight(tempcards)
             // console.log("5")
             // console.log(tempcards)
-            let trips = this.evalTrips(tempcards)
+            trips = this.evalTrips(tempcards)
             // console.log("6")
             // console.log(tempcards)
-            let twopair = this.evalTwoPair(tempcards)
+            twopair = this.evalTwoPair(tempcards)
             // console.log("7")
             // console.log(tempcards)
-            let pair = this.evalPair(tempcards)
+            pair = this.evalPair(tempcards)
             // console.log("8")
             // console.log(tempcards)
-            let highcard = this.evalHighCard(tempcards)
+            highcard = this.evalHighCard(tempcards)
             // console.log("9")
             // console.log(tempcards)
             if(straightflush.isThis == true){
