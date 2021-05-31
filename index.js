@@ -75,7 +75,7 @@ io.on('connection', (socket) => {
 
   socket.on('START_GAME', data => {
     if (players.length>1){
-      game = new yeehaw.Yeehaw(players, data.sb, data.bb);
+      game = new yeehaw.Yeehaw(players, 10, 20);
       io.emit('UPDATE_GAME', game);
       console.log("GAME STARTED: " + game.info);
     } else {
