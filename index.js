@@ -33,16 +33,31 @@ io.on('connection', (socket) => {
   })
 
   socket.on('PLAYER_JOIN', player => {
-    player = new yeehaw.Player(player.name);
-    stack = new yeehaw.Player(player.stack);
     
-    if (players.length == 4){
-      io.emit('ERROR', "Error: Table is full!");
+    let alreadyplaying = players.map((val) => {return val.name}).indexOf(player.name)
+
+    if ( alreadyplaying != -1 ){
+
+      player = players[alreadyplaying];
+      player.playerPos = alreadyplaying;
+      io.emit('JOIN_CONFIRM', player)
+      console.log("PLAYER REJOIN");
+      io.emit('TOAST', "You've rejoined the table.");
+
+    }
+    else if (players.length == 4){
+
+      io.emit('TOAST', "TOAST: Table is full!");
       console.log("TABLE FULL NO ADD: " + player);
+
     } else {
+      player = new yeehaw.Player(player.name);
       players.push(player);
+      player.playerPos = players.map((val) => {return val.name}).indexOf(player.name)
       io.emit('PLAYER_JOIN', player);
+      io.emit('JOIN_CONFIRM', player);
       console.log("PLAYER ADDED: " + player);
+
     }
     
   })
@@ -64,7 +79,7 @@ io.on('connection', (socket) => {
       io.emit('UPDATE_GAME', game);
       console.log("GAME STARTED: " + game.info);
     } else {
-      io.emit('ERROR', {error: "Error: Not enough players joined!"});
+      io.emit('TOAST', {TOAST: "TOAST: Not enough players joined!"});
       console.log("NO PLAYERS");
     }
     
@@ -81,7 +96,7 @@ io.on('connection', (socket) => {
     if (gamestate.isValid)
       io.emit("PLAYER_ACTION", { game: game, gamestate: gamestate });
     else
-      io.emit('ERROR', "Error: Player can't make that move!");
+      io.emit('TOAST', "TOAST: Player can't make that move!");
     console.log("PLAYER_ACTION: " + gamestate.result);
   }); 
 
