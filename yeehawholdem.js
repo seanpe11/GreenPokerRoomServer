@@ -189,6 +189,11 @@ class Yeehaw {
                     this.toact = this.notfolded[(this.notfolded.indexOf(this.toact) + 1) % this.notfolded.length]
                     
                     this.notfolded.splice(remove, 1);
+                    if(this.notfolded.length == 1){
+                        this.players[this.notfolded[0]].isWinner = true
+                        this.players[this.notfolded[0]].stack = this.players[this.notfolded[0]].stack + this.pot
+                        this.phase = 10
+                    }
                     if (this.toact == this.lastbet) // TODO: condition when bet has been matched
                             { 
                                 this.nextphase();
@@ -286,7 +291,11 @@ class Yeehaw {
                 }   
                 break;
             case 5:
-                this.newRound();
+                let unfolded = []
+                let i
+                for(i=0;i<this.notfolded.length;i++){
+                    unfolded.push(this.players[this.notfolded[i]])
+                }
         }
     }
 
