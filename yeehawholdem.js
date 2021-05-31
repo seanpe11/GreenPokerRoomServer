@@ -13,7 +13,7 @@ class Player {
     name = "";
     stack = 1000;
     score = 0;
-    isWinner = 0;
+    isWinner = false;
     hand1 = {};
     hand2 = {};
     best = []; // best 5 cards
@@ -130,6 +130,7 @@ class Yeehaw {
                             { 
                                 this.nextphase();
                             } 
+                        
                         return { result: "CALL", isValid: true, playerIndex: action.playerIndex, value: action.value };
                     } else if (action.value >= this.players[action.playerIndex].stack){
                         this.pot += this.players[action.playerIndex].stack;
@@ -143,11 +144,12 @@ class Yeehaw {
                     } else if (action.playerIndex == this.smallblind && this.currentBet == this.bb) {
                         this.players[this.smallblind].stack =this.players[this.smallblind].stack - (this.bigblind - this.smallblind);
                         this.pot = this.pot + (this.bigblind - this.smallblind);
-                        this.toact = this.notfolded[(this.notfolded.indexOf(this.toact) + 1) % this.notfolded.length]
+                        
                         if (this.toact == this.lastbet) // TODO: condition when bet has been matched
                             { 
                                 this.nextphase();
                             } 
+                        this.toact = this.notfolded[(this.notfolded.indexOf(this.toact) + 1) % this.notfolded.length]
                         return { result: "CALL", isValid: true, playerIndex: action.playerIndex, value: action.value };
                     } else {
                         return { result: "INVALID CALL", isValid: false, playerIndex: action.playerIndex, value: action.value };
@@ -245,9 +247,10 @@ class Yeehaw {
             this.toact = this.notfolded[(this.notfolded.indexOf(this.toact) + 1) % this.notfolded.length]
         }
     }
-
+    
     // for next betting phase (pre-flop, flop, turn, river, showdown), condition for each
     nextphase() {
+        let i;
         this.phase++;
         switch (this.phase){
             case 1:
@@ -260,7 +263,20 @@ class Yeehaw {
                 this.river(); // 1 card to board
                 break;
             case 4:
+                let count = 0
+                let temp = 0
                 this.showdown(); // showcards
+                for(i=0;i<this.players.length;i++)
+                    if(this.players[i].isWinner == true){
+                        count++
+                        temp = i
+                        
+                    }
+                if(count== 1){
+                    console.log("Player " + [temp] + "is the Winner")
+                }else if(count > 1){
+                    console.log("Split Pot")
+                }   
                 break;
         }
     }
@@ -344,9 +360,13 @@ class Yeehaw {
 
     // returns index of highest hand from all players involved
     getWinner(){
+        
 
         let showdowners = [];
         let sevencards = []
+        let tempcards
+        let tempboard = this.board
+        let card1, card2
         let temp, split
         let total1 = 0;
         let total2=0;
@@ -354,24 +374,47 @@ class Yeehaw {
         let i,j;
         for (i=0;i<this.notfolded.length;i++){
             showdowners.push(this.players[this.notfolded[i]]);
+            
         }
         
-        
         for(i=0;i<showdowners.length;i++){
-            sevencards = board
-            sevencards.push(showdowners[i].hand1)
-            sevencards.push(showdowners[i].hand2)
+            
+            card1 = showdowners[i].hand1
+            card2 = showdowners[i].hand2
+            sevencards = tempboard
+            sevencards.push(card1)
+            sevencards.push(card2)
+            tempcards = sevencards
+            
 
             // get best hand for each    
-            let straightflush = this.evalStraightFlush(sevencards)
-            let quads = this.evalQuads(sevencards)
-            let fullhouse = this.evalFullHouse(sevencards)
-            let flush = this.evalFlush(sevencards)
-            let straight = this.evalStraight(sevencards)
-            let trips = this.evalTrips(sevencards)
-            let twopair = this.evalTwoPair(sevencards)
-            let pair = this.evalPair(sevencards)
-            let highcard = this.evalHighCard(sevencards)
+            let straightflush = this.evalStraightFlush(tempcards)
+            // console.log("1")
+            // console.log(tempcards)
+            let quads = this.evalQuads(tempcards)
+            // console.log("2")
+            // console.log(tempcards)
+            let fullhouse = this.evalFullHouse(tempcards)
+            // console.log("3")
+            // console.log(tempcards)
+            let flush = this.evalFlush(tempcards)
+            // console.log("4")
+            // console.log(tempcards)
+            let straight = this.evalStraight(tempcards)
+            // console.log("5")
+            // console.log(tempcards)
+            let trips = this.evalTrips(tempcards)
+            // console.log("6")
+            // console.log(tempcards)
+            let twopair = this.evalTwoPair(tempcards)
+            // console.log("7")
+            // console.log(tempcards)
+            let pair = this.evalPair(tempcards)
+            // console.log("8")
+            // console.log(tempcards)
+            let highcard = this.evalHighCard(tempcards)
+            // console.log("9")
+            // console.log(tempcards)
             if(straightflush.isThis == true){
                 showdowners[i].score = straightflush.score
                 showdowners[i].bestFive = straightflush.bestFive
@@ -400,6 +443,16 @@ class Yeehaw {
                 showdowners[i].score = highcard.score
                 showdowners[i].bestFive = highcard.bestFive
             }
+            console.log("PLAYER " + this.notfolded[i] + " score " + showdowners[i].score)
+            console.log("PLAYER " + this.notfolded[i])
+            console.log(tempcards)
+            sevencards = []
+            sevencards.length = 0
+            tempcards = []
+            tempcards.length = 0
+            card1 = 0
+            card2 = 0
+
         }
 
         for(i=0;i<showdowners.length-1;i++){
@@ -425,16 +478,16 @@ class Yeehaw {
             }
         }
         if(temp!=-1){
-            showdowners[temp].isWinner = 1;
-            showdowners[temp].stack += this.pot
+            this.players[this.notfolded[temp]].isWinner = true
+            this.players[this.notfolded[temp]].stack += this.pot
+            
             //show hand 1 and hand 2
         }else{
             //split pot
-            showdowners[split].stack = this.pot/2
-            showdowners[split].stack = this.pot/2
+            this.players[this.notfolded[split]].stack = this.pot/2
+            this.players[this.notfolded[split + 1]].stack = this.pot/2
         }
-        this.newRound();
-
+        //this.newRound();
 
 
         // figure out who wins
@@ -442,6 +495,7 @@ class Yeehaw {
 
 
     evalStraightFlush(seven) {
+        
         let i, j;
         let count = 0;
         let bestfive = [];
@@ -456,9 +510,9 @@ class Yeehaw {
                 count = 0;
             }
         }
-
+        
         if (count == 4){
-            bestfive.push(...seven.splice(j-4, 5));
+            bestfive.push(...seven.slice(j-4, 5));
             for (i=0;i<bestfive.length-1;i++){
                 if (bestfive[i].suit != bestfive[i+1].suit){
                     return false;
@@ -469,10 +523,13 @@ class Yeehaw {
             }
             return { isThis:true, score: 9, bestFive: bestfive}
         }
+        
         return {isThis: false};
+        
     }
 
     evalQuads(seven){
+        
         let i;
         let found = false;
         let bestfive = [];
@@ -484,34 +541,41 @@ class Yeehaw {
                 break;
             }
         }
-
+      
         if (found) {
-            bestfive.push(...seven.splice(i, 4)); // add quads to bestfive in the front
-            bestfive.push(...seven.splice(0)); // add highest kicker
+            bestfive.push(...seven.slice(i, 4)); // add quads to bestfive in the front
+            bestfive.push(...seven.slice(0)); // add highest kicker
             return { isThis: true, score: 8, bestFive: bestfive };
         }
         return {isThis: false};
     }
 
     evalFullHouse (seven) {
+        
         let i;
+        let foundtrips = false
         let found = false;
         let bestfive = [];
 
         seven.sort((a, b) =>  (a.val < b.val) ? 1 : -1);
         for (i=0;i<seven.length-2;i++){
             if (seven[i].val == seven[i+1].val && seven[i].val == seven[i+2].val){ // find trips
+                foundtrips = true;
                 break;
             }
         }
-        bestfive.push(...seven.splice(i, 3)); // add pair to bestfive in the front
+        if(foundtrips == true){
+            bestfive.push(...seven.slice(i, 3)); // add pair to bestfive in the front
+        }
         for (i=0;i<seven.length-1;i++){ // find second pair
             if (seven[i].val == seven[i+1].val){
                 found = true;
                 break;
             }
         }
-        bestfive.push(...seven.splice(i, 2));
+        if(found == true && foundtrips == true ){
+            bestfive.push(...seven.slice(i, 2));
+        }
 
         if (found){
             return { isThis: false, score: 7, bestFive: bestfive };
@@ -529,6 +593,7 @@ class Yeehaw {
             counts[seven[i].suit]++;
         }
 
+        console.log("inside flush")
         if (counts.indexOf(5) != -1){
             let suit = counts.indexOf(5);
             for (i=0;i<seven.length;i++){
@@ -556,7 +621,7 @@ class Yeehaw {
                 count++;
                 // 5 4 3 2 A straight
                 if (count == 3 && seven[0].val == 13){
-                    bestfive.push(...seven.splice(i+1-4, 4));
+                    bestfive.push(...seven.slice(i+1-4, 4));
                     bestfive.push(seven[0]);
                     return { isThis:true, score: 5, bestFive: bestfive}
                 }
@@ -566,9 +631,9 @@ class Yeehaw {
                 count = 0;
             }
         }
-
+        console.log("inside straight")
         if (count == 4){
-            bestfive.push(...seven.splice(j-4, 5));
+            bestfive.push(...seven.slice(j-4, 5));
             return { isThis:true, score: 5, bestFive: bestfive}
         }
 
@@ -588,10 +653,10 @@ class Yeehaw {
             }
         }
 
-
+        console.log("inside trips")
         if (found) {
-            bestfive.push(...seven.splice(i, 3)); // add pair to bestfive in the front
-            bestfive.push(...seven.splice(0,2)); // take 3 highest cards from remaining seven
+            bestfive.push(...seven.slice(i, 3)); // add pair to bestfive in the front
+            bestfive.push(...seven.slice(0,2)); // take 3 highest cards from remaining seven
             return { isThis: true, score: 4, bestFive: bestfive };
         }
         return {isThis: false};
@@ -608,7 +673,8 @@ class Yeehaw {
                 break;
             }
         }
-        bestfive.push(...seven.splice(i, 2)); // add pair to bestfive in the front
+        console.log("inside two pair")
+        bestfive.push(...seven.slice(i, 2)); // add pair to bestfive in the front
         for (i=0;i<seven.length-1;i++){ // find second pair
             if (seven[i].val == seven[i+1].val){
                 found = true;
@@ -618,7 +684,7 @@ class Yeehaw {
         
 
         if (found){
-            bestfive.push(...seven.splice(i, 2)); // add pair to bestfive in the front
+            bestfive.push(...seven.slice(i, 2)); // add pair to bestfive in the front
             bestfive.push(seven[0]);
             return { isThis: false, score: 3, bestFive: bestfive };
         } 
@@ -637,19 +703,21 @@ class Yeehaw {
                 break;
             }
         }
+        console.log("inside pair")
 
         if (found) {
-            bestfive.push(...seven.splice(i, 2)); // add pair to bestfive in the front
-            bestfive.push(...seven.splice(0,3)); // take 3 highest cards from remaining seven
+            bestfive.push(...seven.slice(i, 2)); // add pair to bestfive in the front
+            bestfive.push(...seven.slice(0,3)); // take 3 highest cards from remaining seven
             return { isThis: true, score: 2, bestFive: bestfive };
         }
         return {isThis: false}; 
     }
 
     evalHighCard(seven) {
+        console.log("inside high")
         let i;
         seven.sort((a, b) =>  (a.val < b.val) ? 1 : -1);
-        seven.splice(5,2)
+        seven.slice(5,2)
         return { isThis: true, score: 1, bestFive: seven };
     }
     
