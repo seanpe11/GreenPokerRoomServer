@@ -26,7 +26,7 @@ io.on('connection', (socket) => {
 
   socket.on("test", () => {
     players = [new yeehaw.Player("Sean"), new yeehaw.Player("Rasheed"), new yeehaw.Player("Jolo"), new yeehaw.Player("Bags")]
-    game = new yeehaw.Yeehaw(players, 1, 2)
+    game = new yeehaw.Yeehaw(players, 10, 20)
     socket.emit("UPDATE_GAME", game)
     console.log("TEST")
     console.log(JSON.stringify(game.players))
@@ -42,12 +42,12 @@ io.on('connection', (socket) => {
       player.playerPos = alreadyplaying;
       io.emit('JOIN_CONFIRM', player)
       console.log("PLAYER REJOIN");
-      io.emit('TOAST', "You've rejoined the table.");
+      io.emit('TOAST', "Player " + player.name + " rejoined the table.");
 
     }
     else if (players.length == 4){
 
-      io.emit('TOAST', "TOAST: Table is full!");
+      io.emit('TOAST', "Table is full!");
       console.log("TABLE FULL NO ADD: " + player);
 
     } else {
@@ -96,7 +96,7 @@ io.on('connection', (socket) => {
     if (gamestate.isValid)
       io.emit("PLAYER_ACTION", { game: game, gamestate: gamestate });
     else
-      io.emit('TOAST', "TOAST: Player can't make that move!");
+      io.emit('TOAST', "It's " + game.players[game.toact] +" turn to act!");
     console.log("PLAYER_ACTION: " + gamestate.result);
   }); 
 
