@@ -18,6 +18,7 @@ app.get('/playerTest', (req, res) => {
 let game = {};
 let status = { active:false }
 let players = [];
+let ready = false;
 io.on('connection', (socket) => {
   console.log("a user has connected")
   // socket.emit("UPDATE_GAME", game);
@@ -36,7 +37,7 @@ io.on('connection', (socket) => {
     stack = new yeehaw.Player(player.stack);
     
     if (players.length == 4){
-      io.emit('TABLE_FULL', game);
+      io.emit('ERROR', "Error: Table is full!");
       console.log("TABLE FULL NO ADD: " + player);
     } else {
       players.push(player);
@@ -84,7 +85,7 @@ io.on('connection', (socket) => {
     console.log("PLAYER_ACTION: " + gamestate.result);
   }); 
 
-  socket.on('UPDATE_CLIENT', () => {
+  socket.on('UPDATE_CLIENT', (playername) => {
     io.emit('UPDATE_GAME', game);
   })
 
