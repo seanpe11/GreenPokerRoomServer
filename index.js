@@ -98,12 +98,12 @@ io.on('connection', (socket) => {
     if (gamestate.isValid)
       io.emit("PLAYER_ACTION", { game: game, gamestate: gamestate });
     else
-      io.emit('TOAST', "It's " + game.players[game.toact].name +" turn to act!");
+      io.to(socket.id).emit('TOAST', "It's " + game.players[game.toact].name +" turn to act!");
     console.log("PLAYER_ACTION: " + gamestate.result);
   }); 
 
   socket.on('UPDATE_CLIENT', (playername) => {
-    io.emit('UPDATE_GAME', game);
+    io.to(socket.id).emit('UPDATE_GAME', game);
     console.log("UPDATE requested by player " + playername);
   })
 
