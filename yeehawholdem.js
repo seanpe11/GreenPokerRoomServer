@@ -128,17 +128,11 @@ class Yeehaw {
                     if (action.value == this.currentBet){
                         this.players[action.playerIndex].stack -= this.currentBet;
                         this.pot += this.currentBet;
-                        if(this.toact == this.lastbet){
-                            this.toact = this.notfolded[(this.notfolded.indexOf(this.toact) + 1) % this.notfolded.length]
+                        this.toact = this.notfolded[(this.notfolded.indexOf(this.toact) + 1) % this.notfolded.length]
+                        if (this.toact == this.lastbet) // TODO: condition when bet has been matched
+                        { 
                             this.nextphase();
-                        }else if(this.toact != this.lastbet){
-                            this.toact = this.notfolded[(this.notfolded.indexOf(this.toact) + 1) % this.notfolded.length]
-                            // if (this.toact == this.lastbet) // TODO: condition when bet has been matched
-                            //     { 
-                            //         this.nextphase();
-                            //     } 
-                            this.nextphase();
-                        }
+                        } 
                         return { result: "CALL", isValid: true, playerIndex: action.playerIndex, value: action.value };
                     } else if (action.value >= this.players[action.playerIndex].stack){
                         this.pot += this.players[action.playerIndex].stack;
@@ -279,15 +273,19 @@ class Yeehaw {
                 let count = 0
                 let temp = 0
                 this.showdown(); // showcards
-                for(i=0;i<this.players.length;i++)
+                for(i=0;i<this.players.length;i++){
                     if(this.players[i].isWinner == true){
-                        count++
-                        temp = i
-                        
+                        count++   
                     }
-                if(count== 1){
-                    console.log("Player " + [temp] + "is the Winner")
-                    console.log("Stack: " + this.players[temp].stack)
+                }
+                if(count == 1){
+                    for(i=0;i<this.players.length;i++){
+                        if(this.players[i].isWinner == true){
+                            console.log("Player " + [temp] + "is the Winner")
+                            console.log("Stack: " + this.players[temp].stack)
+                        }
+                    }
+                    
                 }else if(count > 1){
                     console.log("Split Pot")
                 }   
@@ -492,8 +490,10 @@ class Yeehaw {
             //show hand 1 and hand 2
         }else{
             //split pot
-            this.players[this.notfolded[split]].stack = this.pot/2
-            this.players[this.notfolded[split + 1]].stack = this.pot/2
+            this.players[this.notfolded[split]].stack += this.pot/2
+            this.players[this.notfolded[split + 1]].stack += this.pot/2
+            console.log("STACK 1 " + this.players[this.notfolded[split]].stack)
+            console.log("STACK 2 " + this.players[this.notfolded[split+1 % this.notfolded.length]].stack)
         }
         //this.newRound();
 
