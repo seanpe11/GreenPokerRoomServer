@@ -137,20 +137,15 @@ class Yeehaw {
                     } else if (action.value >= this.players[action.playerIndex].stack){
                         this.pot += this.players[action.playerIndex].stack;
                         this.players[action.playerIndex].stack = 0; // player's bet makes him go all in
-                        if(this.toact == this.lastbet){
-                            this.toact = this.notfolded[(this.notfolded.indexOf(this.toact) + 1) % this.notfolded.length]
+                        this.toact = this.notfolded[(this.notfolded.indexOf(this.toact) + 1) % this.notfolded.length]
+                        if (this.toact == this.lastbet) // TODO: condition when bet has been matched
+                        { 
                             this.nextphase();
-                        }else{
-                            this.toact = this.notfolded[(this.notfolded.indexOf(this.toact) + 1) % this.notfolded.length]
-                            if (this.toact == this.lastbet) // TODO: condition when bet has been matched
-                                { 
-                                    this.nextphase();
-                                } 
-                        }
+                        } 
                         return { result: "FORCED ALL IN", isValid: true, playerIndex: action.playerIndex, value: action.value };
                     } else if (action.playerIndex == this.smallblind && this.currentBet == this.bb) {
-                        this.players[this.smallblind].stack =this.players[this.smallblind].stack - (this.bigblind - this.smallblind);
-                        this.pot = this.pot + (this.bigblind - this.smallblind);
+                        this.players[this.smallblind].stack = this.players[this.smallblind].stack - (this.bb - this.sb);
+                        this.pot = this.pot + (this.bb - this.sb);
                         
                         if (this.toact == this.lastbet) // TODO: condition when bet has been matched
                             { 
@@ -290,6 +285,8 @@ class Yeehaw {
                     console.log("Split Pot")
                 }   
                 break;
+            case 5:
+                this.newRound();
         }
     }
 
@@ -462,8 +459,9 @@ class Yeehaw {
         }
 
         for(i=0;i<showdowners.length-1;i++){
-            if(showdowners[i].score>showdowners[i+1].score){
+            if(showdowners[i].score > showdowners[i+1].score){
                 temp = i
+                break;
             }else if (showdowners[i].score == showdowners[i+1].score){
                 for(j=0;j<showdowners[i].bestFive.length;j++){
                     total1 += showdowners[i].bestFive[j].val
@@ -473,14 +471,18 @@ class Yeehaw {
                 }
                 if(total1>total2){
                     temp = i
+                    break;
                 }else if(total1<total2){
                     temp=i+1
+                    break;
                 }else{
                     split = i
                     temp=-1
+                    break;
                 }
-            }else{
+            }else if (showdowners[i].score < showdowners[i+1].score){
                 temp=i+1
+                break;
             }
         }
         if(temp!=-1){
@@ -495,7 +497,7 @@ class Yeehaw {
             console.log("STACK 1 " + this.players[this.notfolded[split]].stack)
             console.log("STACK 2 " + this.players[this.notfolded[split+1 % this.notfolded.length]].stack)
         }
-        //this.newRound();
+        this.nextphase();
 
 
         // figure out who wins
