@@ -15,7 +15,7 @@ app.get('/playerTest', (req, res) => {
 })
 
 let game = { notstarted: true };
-let gaming = true;
+let gaming = false;
 let players = [];
 
 players = [new yeehaw.Player("Sean")]
@@ -73,8 +73,8 @@ io.on('connection', (socket) => {
       console.log("GAME STARTED: " + game.info);
     } else {
       io.emit('TOAST', "Not enough players joined!");
-      console.log("NO PLAYERS");
-      io.emit('WAITING_READY');
+      console.log("NOT 4 PLAYERS");
+      io.emit('WAITING', players);
     }
     
   })
