@@ -40,7 +40,7 @@ io.on('connection', (socket) => {
     console.log("Player says he is ready");
     if (player != -1){
       players[player].ready = true;
-      console.log(p)
+      console.log(players[player].name + " is ready.")
     }
     console.log("Waiting for players " + players.filter( (val) => { return !val.ready }).map( (val) => {return val.name}).toString())
                
