@@ -263,7 +263,6 @@ class Yeehaw {
     
     // for next betting phase (pre-flop, flop, turn, river, showdown), condition for each
     nextphase() {
-        let i = 0;
         this.phase++;
         switch (this.phase){
             case 1:
@@ -300,7 +299,6 @@ class Yeehaw {
                 break;
             case 5:
                 let unfolded = []
-                let i
                 for(i=0;i<this.notfolded.length;i++){
                     unfolded.push(this.players[this.notfolded[i]])
                 }
