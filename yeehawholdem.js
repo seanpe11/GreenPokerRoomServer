@@ -70,6 +70,7 @@ class Yeehaw {
         this.players[this.smallblind].stack -= this.sb; 
         this.players[this.bigblind].stack -= this.bb;
         this.notfolded = [...Array(this.players.length).keys()];// index of players not folded
+        this.winnerString = ""
         this.deal();
     }
 
