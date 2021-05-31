@@ -37,6 +37,7 @@ io.on('connection', (socket) => {
 
   socket.on('PLAYER_READY', username => {
     let player = players.indexOf(username);
+    console.log("Player says he is ready");
     if (player != -1){
       players[player].ready = true;
     }
