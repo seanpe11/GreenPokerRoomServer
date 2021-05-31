@@ -18,7 +18,7 @@ let game = { notstarted: true };
 let gaming = false;
 let players = [];
 
-players = [new yeehaw.Player("Sean")]
+players = [new yeehaw.Player("Guts")]
 // game = new yeehaw.Yeehaw(players, 10, 20)
 // console.log("GAME INITIALIZED")
 
@@ -79,7 +79,15 @@ io.on('connection', (socket) => {
     }
   })
 
+  socket.on("NEW_ROUND", () => {
+    game.newRound();
+    socket.emit('UPDATE_GAME', game);
+  })
+
   socket.on('RESET_GAME', data => {
+    players = []
+    game = {}
+    io.emit("GAME_RESET");
     console.log("GAME RESET: " + game.info);
   })
 
