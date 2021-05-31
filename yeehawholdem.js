@@ -273,6 +273,7 @@ class Yeehaw {
                 let count = 0
                 let temp = 0
                 this.showdown(); // showcards
+                let i;
                 for(i=0;i<this.players.length;i++){
                     if(this.players[i].isWinner == true){
                         count++   
