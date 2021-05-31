@@ -35,9 +35,9 @@ io.on('connection', (socket) => {
     console.log(JSON.stringify(game.players))
   })
 
-  socket.on('PLAYER_JOIN', player => {
+  socket.on('PLAYER_JOIN', requester => {
     
-    let alreadyplaying = players.map((val) => {return val.name}).indexOf(player.name)
+    let alreadyplaying = players.map((val) => {return val.name}).indexOf(requester.name)
 
     if ( alreadyplaying != -1 ){
 
