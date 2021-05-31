@@ -88,17 +88,20 @@ io.on('connection', (socket) => {
     players = []
     game = {}
     io.emit("GAME_RESET");
+    gaming = false
     console.log("GAME RESET: " + game.info);
   })
 
   // game events
   socket.on('PLAYER_ACTION', action => {
-    let gamestate = game.playerAction(action);
-    if (gamestate.isValid)
-      io.emit("PLAYER_ACTION", { game: game, gamestate: gamestate });
-    else
-      io.to(socket.id).emit('TOAST', "It's " + game.players[game.toact].name +" turn to act!");
-    console.log("PLAYER_ACTION: " + gamestate.result);
+    if (gaming) {
+      let gamestate = game.playerAction(action);
+      if (gamestate.isValid)
+        io.emit("PLAYER_ACTION", { game: game, gamestate: gamestate });
+      else
+        io.to(socket.id).emit('TOAST', "It's " + game.players[game.toact].name +" turn to act!");
+      console.log("PLAYER_ACTION: " + gamestate.result);
+    }
   }); 
 
   socket.on('UPDATE_CLIENT', (playername) => {
