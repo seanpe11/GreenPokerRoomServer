@@ -19,8 +19,9 @@ let status = { active: false }
 let players = [];
 let ready = false;
 
-// players = [new yeehaw.Player("Sean"), new yeehaw.Player("Rasheed"), new yeehaw.Player("Jolo"), new yeehaw.Player("Bags")]
-// game = new yeehaw.Yeehaw(players, 10, 20)
+players = [new yeehaw.Player("Sean"), new yeehaw.Player("Rasheed"), new yeehaw.Player("Jolo"), new yeehaw.Player("Bags")]
+game = new yeehaw.Yeehaw(players, 10, 20)
+console.log("GAME INITIALIZED")
 
 io.on('connection', (socket) => {
   console.log("a user has connected")
