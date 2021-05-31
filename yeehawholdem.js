@@ -161,7 +161,7 @@ class Yeehaw {
                 case "RAISE":
                     if(action.value > this.currentBet){
                         if (action.value >= this.players[action.playerIndex].stack){
-                            this.pot += this.player[action.playerIndex].stack;
+                            this.pot += this.players[action.playerIndex].stack;
                             this.players[action.playerIndex].stack = 0; // player's bet makes him go all in
                             this.currentBet = action.value;
                             this.lastbet = action.playerIndex;
