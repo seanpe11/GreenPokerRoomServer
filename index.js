@@ -86,7 +86,7 @@ io.on('connection', (socket) => {
   })
 
   socket.on('RESET_GAME', data => {
-    game = new yeehaw.Yeehaw(players, data.sb, data.bb);
+    game = new yeehaw.Yeehaw(players, 10, 20);
     io.emit('UPDATE_GAME', game);
     console.log("GAME RESET: " + game.info);
   })
