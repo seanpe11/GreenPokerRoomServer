@@ -116,11 +116,12 @@ class Yeehaw {
                         this.nextphase();
                         return { result: "CHECK", isValid: true, playerIndex: action.playerIndex, value: action.value };
                     } else if (this.currentBet == 0 ) {
-                        this.toact = this.notfolded[(this.notfolded.indexOf(this.toact) + 1) % this.notfolded.length]
+                        
                         if (this.toact == this.lastbet) // TODO: condition when bet has been matched
                         { 
                             this.nextphase();
                         } 
+                        this.toact = this.notfolded[(this.notfolded.indexOf(this.toact) + 1) % this.notfolded.length]
                         return { result: "CHECK", isValid: true, playerIndex: action.playerIndex, value: action.value };
                     } else if(action.playerIndex != this.bigblind && this.currentBet != 0 )
                     {
@@ -287,9 +288,9 @@ class Yeehaw {
                 if(count == 1){
                     for(i=0;i<this.players.length;i++){
                         if(this.players[i].isWinner == true){
-                            console.log("Player " + [temp] + "is the Winner ")
-                            console.log("Stack: " + this.players[temp].stack)
-                            this.winnerString = "Player " + this.players[temp].name + "wins " + this.pot
+                            console.log("Player " + [i] + "is the Winner ")
+                            console.log("Stack: " + this.players[i].stack)
+                            this.winnerString = "Player " + this.players[i].name + "wins " + this.pot
                         }
                     }
                     
