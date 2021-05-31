@@ -286,7 +286,7 @@ class Yeehaw {
                 }   
                 break;
             case 5:
-                this.newRound();
+                break;
         }
     }
 
