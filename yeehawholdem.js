@@ -288,9 +288,9 @@ class Yeehaw {
                 if(count == 1){
                     for(i=0;i<this.players.length;i++){
                         if(this.players[i].isWinner == true){
-                            console.log("Player " + [temp] + "is the Winner ")
-                            console.log("Stack: " + this.players[temp].stack)
-                            this.winnerString = "Player " + this.players[temp].name + "wins " + this.pot
+                            console.log("Player " + [i] + "is the Winner ")
+                            console.log("Stack: " + this.players[i].stack)
+                            this.winnerString = "Player " + this.players[i].name + "wins " + this.pot 
                         }
                     }
                     

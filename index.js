@@ -18,7 +18,6 @@ let game = { notstarted: true };
 let gaming = false;
 let players = [];
 
-players = [new yeehaw.Player("Guts")]
 // game = new yeehaw.Yeehaw(players, 10, 20)
 // console.log("GAME INITIALIZED")
 
