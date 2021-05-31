@@ -193,6 +193,7 @@ class Yeehaw {
                         this.players[this.notfolded[0]].isWinner = true
                         this.players[this.notfolded[0]].stack = this.players[this.notfolded[0]].stack + this.pot
                         this.phase = 10
+                        this.winner = this.players[this.notfolded[0]];
                     }
                     if (this.toact == this.lastbet) // TODO: condition when bet has been matched
                             { 
@@ -210,6 +211,7 @@ class Yeehaw {
     // function after showdown
     newRound(){
         this.phase = 0;
+        this.winner = {};
         this.board = [];
         this.button++;
         this.button = this.button % this.players.length; // make sure it loops around
@@ -282,8 +284,9 @@ class Yeehaw {
                 if(count == 1){
                     for(i=0;i<this.players.length;i++){
                         if(this.players[i].isWinner == true){
-                            console.log("Player " + [temp] + "is the Winner")
+                            console.log("Player " + [temp] + "is the Winner ")
                             console.log("Stack: " + this.players[temp].stack)
+                            this.winner = this.players[temp]
                         }
                     }
                     
