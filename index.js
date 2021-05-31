@@ -50,7 +50,7 @@ io.on('connection', (socket) => {
 
     }
     else if (players.length == 4){
-      io.emit('TOAST', "Table is full!");
+      io.to(socket.id).emit('TOAST', "Table is full!");
       console.log("TABLE FULL NO ADD: " + player);
     } else {
       player = new yeehaw.Player(requester.name);
