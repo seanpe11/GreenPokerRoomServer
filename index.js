@@ -52,7 +52,7 @@ io.on('connection', (socket) => {
       io.emit('TOAST', "Table is full!");
       console.log("TABLE FULL NO ADD: " + player);
     } else {
-      player = new yeehaw.Player(player.name);
+      player = new yeehaw.Player(requester.name);
       players.push(player);
       player.playerPos = players.map((val) => {return val.name}).indexOf(player.name)
       io.emit('PLAYER_JOIN', player);
