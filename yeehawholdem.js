@@ -479,7 +479,7 @@ class Yeehaw {
                     total1 += showdowners[i].bestFive[j].val
                 }
                 for(j=0;j<showdowners[i+1].bestFive.length;j++){
-                    total2 += showdowners[i].bestFive[j].val
+                    total2 += showdowners[i+1].bestFive[j].val
                 }
                 if(total1>total2){
                     temp = i
