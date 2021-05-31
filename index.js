@@ -17,23 +17,33 @@ app.get('/playerTest', (req, res) => {
 let game = { notstarted: true };
 let status = { active: false }
 let players = [];
-let ready = false;
 
 players = [new yeehaw.Player("Sean"), new yeehaw.Player("Rasheed"), new yeehaw.Player("Jolo"), new yeehaw.Player("Bags")]
-game = new yeehaw.Yeehaw(players, 10, 20)
-console.log("GAME INITIALIZED")
+// game = new yeehaw.Yeehaw(players, 10, 20)
+// console.log("GAME INITIALIZED")
 
 io.on('connection', (socket) => {
   console.log("a user has connected")
   // socket.emit("UPDATE_GAME", game);
 
 
-  socket.on("test", () => {
-    players = [new yeehaw.Player("Sean"), new yeehaw.Player("Rasheed"), new yeehaw.Player("Jolo"), new yeehaw.Player("Bags")]
-    game = new yeehaw.Yeehaw(players, 10, 20)
-    socket.emit("UPDATE_GAME", game)
-    console.log("TEST")
-    console.log(JSON.stringify(game.players))
+  // socket.on("test", () => {
+  //   players = [new yeehaw.Player("Sean"), new yeehaw.Player("Rasheed"), new yeehaw.Player("Jolo"), new yeehaw.Player("Bags")]
+  //   game = new yeehaw.Yeehaw(players, 10, 20)
+  //   socket.emit("UPDATE_GAME", game)
+  //   console.log("TEST")
+  //   console.log(JSON.stringify(game.players))
+  // })
+
+  socket.on('PLAYER_READY', username => {
+    let player = players.map( (val) => {return val.name}).indexOf(username);
+    console.log("Player says he is ready");
+    if (player != -1){
+      players[player].ready = true;
+      console.log(players[player].name + " is ready.")
+    }
+    console.log("Waiting for players " + players.filter( (val) => { return !val.ready }).map( (val) => {return val.name}).toString())
+               
   })
 
   socket.on('PLAYER_JOIN', requester => {
@@ -59,40 +69,31 @@ io.on('connection', (socket) => {
       io.emit('PLAYER_JOIN', player);
       io.to(socket.id).emit('JOIN_CONFIRM', player);
       console.log("PLAYER ADDED: " + player);
-
     }
-    
   })
-
-  socket.on('FIND_PLAYER', player => {
-
-  })
-
   socket.on('PLAYER_LEAVE', player => {
     
   })
 
-  // get the game
-  
-
+  // starters and stoppers
   socket.on('START_GAME', data => {
-    if (players.length>1){
+    if (players.length==4){
       game = new yeehaw.Yeehaw(players, 10, 20);
       io.emit('UPDATE_GAME', game);
       console.log("GAME STARTED: " + game.info);
     } else {
       io.emit('TOAST', {TOAST: "Not enough players joined!"});
       console.log("NO PLAYERS");
+      io.emit('WAITING_READY');
     }
     
   })
 
   socket.on('RESET_GAME', data => {
-    game = new yeehaw.Yeehaw(players, 10, 20);
-    io.emit('UPDATE_GAME', game);
     console.log("GAME RESET: " + game.info);
   })
 
+  // game events
   socket.on('PLAYER_ACTION', action => {
     let gamestate = game.playerAction(action);
     if (gamestate.isValid)
