@@ -44,7 +44,7 @@ io.on('connection', (socket) => {
 
       player = players[alreadyplaying];
       player.playerPos = alreadyplaying;
-      io.emit('JOIN_CONFIRM', player)
+      io.to(socket).emit('JOIN_CONFIRM', player)
       console.log("PLAYER REJOIN");
       io.emit('TOAST', "Player " + player.name + " rejoined the table.");
 
@@ -57,7 +57,7 @@ io.on('connection', (socket) => {
       players.push(player);
       player.playerPos = players.map((val) => {return val.name}).indexOf(player.name)
       io.emit('PLAYER_JOIN', player);
-      io.emit('JOIN_CONFIRM', player);
+      io.to(socket).emit('JOIN_CONFIRM', player);
       console.log("PLAYER ADDED: " + player);
 
     }
