@@ -45,10 +45,8 @@ io.on('connection', (socket) => {
 
     }
     else if (players.length == 4){
-
       io.emit('TOAST', "Table is full!");
       console.log("TABLE FULL NO ADD: " + player);
-
     } else {
       player = new yeehaw.Player(player.name);
       players.push(player);
@@ -101,6 +99,7 @@ io.on('connection', (socket) => {
 
   socket.on('UPDATE_CLIENT', (playername) => {
     io.emit('UPDATE_GAME', game);
+    console.log("UPDATE requested by player " + playername);
   })
 
 
