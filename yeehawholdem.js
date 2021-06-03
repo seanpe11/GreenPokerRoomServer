@@ -144,7 +144,17 @@ class Yeehaw {
                     break;
 
                 case "CALL":
-                    if (action.value == this.currentBet){
+                     if (action.value >= this.players[action.playerIndex].stack){
+                        
+                        this.pot += this.players[action.playerIndex].stack;
+                        this.players[action.playerIndex].stack = 0; // player's bet makes him go all in
+                        this.toact = this.notfolded[(this.notfolded.indexOf(this.toact) + 1) % this.notfolded.length]
+                        if (this.toact == this.lastbet) // TODO: condition when bet has been matched
+                        { 
+                            this.nextphase();
+                        } 
+                        return { result: "FORCED ALL IN", isValid: true, playerIndex: action.playerIndex, value: action.value };
+                    } else if (action.value == this.currentBet){
                         if(this.players[action.playerIndex].investment != 0){
                             this.pot = this.pot + (this.currentBet - this.players[action.playerIndex].investment)
                             this.players[action.playerIndex].stack =  this.players[action.playerIndex].stack - (this.currentBet - this.players[action.playerIndex].investment);
@@ -158,17 +168,8 @@ class Yeehaw {
                             this.nextphase();
                         } 
                         return { result: "CALL", isValid: true, playerIndex: action.playerIndex, value: action.value };
-                    } else if (action.value >= this.players[action.playerIndex].stack){
-                        
-                        this.pot += this.players[action.playerIndex].stack;
-                        this.players[action.playerIndex].stack = 0; // player's bet makes him go all in
-                        this.toact = this.notfolded[(this.notfolded.indexOf(this.toact) + 1) % this.notfolded.length]
-                        if (this.toact == this.lastbet) // TODO: condition when bet has been matched
-                        { 
-                            this.nextphase();
-                        } 
-                        return { result: "FORCED ALL IN", isValid: true, playerIndex: action.playerIndex, value: action.value };
-                    } else if (action.playerIndex == this.smallblind && this.currentBet == this.bb) {
+                    } 
+                    else if (action.playerIndex == this.smallblind && this.currentBet == this.bb) {
                         this.players[this.smallblind].stack = this.players[this.smallblind].stack - (this.bb - this.sb);
                         this.pot = this.pot + (this.bb - this.sb);
                         
@@ -491,12 +492,21 @@ class Yeehaw {
         for(i=0;i<showdowners.length-1;i++){
             if(showdowners[i].score > showdowners[i+1].score){
                 temp = i
-                break;
-            }else if (showdowners[i].score == showdowners[i+1].score){
-                for(j=0;j<showdowners[i].bestFive.length;j++){
+            }
+        }
+
+        let highest = showdowners[temp].score
+        let tied = showdowners.filter((val)=>{
+            return val.score ==  highest
+        })
+        let split = 0
+
+        if(tied.length>1){
+            for( i = 0; tied.length-1; i++){
+                for(j=0;j<tied[i].bestFive.length;j++){
                     total1 += showdowners[i].bestFive[j].val
                 }
-                for(j=0;j<showdowners[i+1].bestFive.length;j++){
+                for(j=0;j<tied[i].bestFive.length;j++){
                     total2 += showdowners[i+1].bestFive[j].val
                 }
                 if(total1>total2){
@@ -506,27 +516,47 @@ class Yeehaw {
                     temp=i+1
                     break;
                 }else{
-                    split = i
-                    temp=-1
-                    break;
+                    split = 1
+                   
                 }
-            }else if (showdowners[i].score < showdowners[i+1].score){
-                temp=i+1
-                break;
+            }
+            if(split == 1){
+                    this.players[this.notfolded[split]].stack += this.pot/2
+                    this.players[this.notfolded[split + 1]].stack += this.pot/2
+                    console.log("STACK 1 " + this.players[this.notfolded[split]].stack)
+                    console.log("STACK 2 " + this.players[this.notfolded[split+1 % this.notfolded.length]].stack)
+            }else{
+                this.players[this.notfolded[temp]].isWinner = true
+                this.players[this.notfolded[temp]].stack += this.pot
             }
         }
-        if(temp!=-1){
-            this.players[this.notfolded[temp]].isWinner = true
-            this.players[this.notfolded[temp]].stack += this.pot
-            
-            //show hand 1 and hand 2
-        }else{
-            //split pot
-            this.players[this.notfolded[split]].stack += this.pot/2
-            this.players[this.notfolded[split + 1]].stack += this.pot/2
-            console.log("STACK 1 " + this.players[this.notfolded[split]].stack)
-            console.log("STACK 2 " + this.players[this.notfolded[split+1 % this.notfolded.length]].stack)
-        }
+        
+        this.players[this.notfolded[temp]].isWinner = true
+        this.players[this.notfolded[temp]].stack += this.pot
+
+        // else if (showdowners[i].score == showdowners[i+1].score){
+        //     for(j=0;j<showdowners[i].bestFive.length;j++){
+        //         total1 += showdowners[i].bestFive[j].val
+        //     }
+        //     for(j=0;j<showdowners[i+1].bestFive.length;j++){
+        //         total2 += showdowners[i+1].bestFive[j].val
+        //     }
+        //     if(total1>total2){
+        //         temp = i
+        //         break;
+        //     }else if(total1<total2){
+        //         temp=i+1
+        //         break;
+        //     }else{
+        //         split = i
+        //         temp=-1
+        //         break;
+        //     }
+        // }else if (showdowners[i].score < showdowners[i+1].score){
+        //     temp=i+1
+        //     break;
+        // }
+        
         this.nextphase();
 
 
