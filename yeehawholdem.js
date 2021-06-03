@@ -112,22 +112,22 @@ class Yeehaw {
             console.log("INSIDE ACTION", action)
             switch(action.action){
                 case "CHECK":
-                    if( action.playerIndex == this.bigblind && this.currentBet == this.bb){ 
+                    if( action.playerIndex == this.bigblind && this.currentBet == this.bb && this.phase == 0){ 
             
                         this.nextphase();
                         return { result: "CHECK", isValid: true, playerIndex: action.playerIndex, value: action.value };
                     } else if (this.currentBet == 0 ) {
-<<<<<<< HEAD
-                        
-                        if (this.toact == this.lastbet) // TODO: condition when bet has been matched
-=======
                         this.toact = this.notfolded[(this.notfolded.indexOf(this.toact) + 1) % this.notfolded.length]
-                        if (this.toact == this.lastbet + 1) // TODO: condition when bet has been matched
->>>>>>> 07cf367f47456c2e496e26308ce0eb31721d5e2c
+                        if (this.toact == this.lastbet) // TODO: condition when bet has been matched
                         { 
                             this.nextphase();
                         } 
-                        this.toact = this.notfolded[(this.notfolded.indexOf(this.toact) + 1) % this.notfolded.length]
+
+                        // if (this.toact == this.lastbet-1) // TODO: condition when bet has been matched
+                        // { 
+                        //     this.nextphase();
+                        // } 
+                        // this.toact = this.notfolded[(this.notfolded.indexOf(this.toact) + 1) % this.notfolded.length]
                         return { result: "CHECK", isValid: true, playerIndex: action.playerIndex, value: action.value };
                     } else if(action.playerIndex != this.bigblind && this.currentBet != 0 )
                     {
@@ -246,26 +246,17 @@ class Yeehaw {
 
     // for next player action
     nextturn() {
-        
-        // if someone goes all in, skip their turn but don't fold them
-        if (this.players[this.toact].stack == 0){
-            this.toact = this.notfolded[(this.notfolded.indexOf(this.toact) + 1) % this.notfolded.length];
-        }
-
+        this.toact = this.notfolded[(this.notfolded.indexOf(this.toact) + 1) % this.notfolded.length]
+        // // if someone goes all in, skip their turn but don't fold them
+        // if (this.players[this.toact].stack == 0){
+        //     this.toact = this.notfolded[(this.notfolded.indexOf(this.toact) + 1) % this.notfolded.length];
+        // }
         // set condition when betting ends
         if (this.toact == this.lastbet) // TODO: condition when bet has been matched
         { 
             this.nextphase();
         } 
-        
-        else if (this.notfolded.length == 1) // all players have folded except one
-        { 
-            this.players[this.notfolded[0]].stack += this.pot;
-            // something about highlighting winner
-            this.newRound();
-        }else{
-            this.toact = this.notfolded[(this.notfolded.indexOf(this.toact) + 1) % this.notfolded.length]
-        }
+            
     }
     
     // for next betting phase (pre-flop, flop, turn, river, showdown), condition for each
