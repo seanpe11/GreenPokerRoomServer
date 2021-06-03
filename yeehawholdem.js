@@ -118,7 +118,7 @@ class Yeehaw {
                         return { result: "CHECK", isValid: true, playerIndex: action.playerIndex, value: action.value };
                     } else if (this.currentBet == 0 ) {
                         this.toact = this.notfolded[(this.notfolded.indexOf(this.toact) + 1) % this.notfolded.length]
-                        if (this.toact == this.lastbet) // TODO: condition when bet has been matched
+                        if (this.toact == this.lastbet-1) // TODO: condition when bet has been matched
                         { 
                             this.nextphase();
                         } 
@@ -287,7 +287,7 @@ class Yeehaw {
                         if(this.players[i].isWinner == true){
                             console.log("Player " + [i] + "is the Winner ")
                             console.log("Stack: " + this.players[i].stack)
-                            this.winnerString = "Player " + this.players[i].name + "wins " + this.pot
+                            this.winnerString = "Player " + this.players[i].name + " wins " + this.pot
                         }
                     }
                     
