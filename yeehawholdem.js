@@ -282,7 +282,7 @@ class Yeehaw {
         this.currentBet = 0;
         this.checkCounter = 0
         for(let i = 0; i<this.players.length; i ++){
-            players[i].investment = 0
+            this.players[i].investment = 0
         }
         switch (this.phase){
             case 1:
