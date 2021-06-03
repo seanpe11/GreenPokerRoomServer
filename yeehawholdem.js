@@ -49,7 +49,7 @@ class Yeehaw {
     deck = []; // deck of cards, drawing without replacement
     board = []; // board of cards, numbers only
     phase = 0; // betting phase
-
+    checkCounter = 0;
     // cards are represented as int 1-13 for the card value, 0-3 for suits
 
     constructor(arrPlayers, sb, bb){
@@ -116,12 +116,18 @@ class Yeehaw {
             
                         this.nextphase();
                         return { result: "CHECK", isValid: true, playerIndex: action.playerIndex, value: action.value };
-                    } else if (this.currentBet == 0 ) {
+                    } else if (this.currentBet == 0) {
                         this.toact = this.notfolded[(this.notfolded.indexOf(this.toact) + 1) % this.notfolded.length]
-                        if (this.toact == this.lastbet-1) // TODO: condition when bet has been matched
-                        { 
+                        this.checkCounter++
+
+                        if(this.checkCounter == this.notfolded.length){
                             this.nextphase();
-                        } 
+                        }
+                        // if (this.toact == this.lastbet) // TODO: condition when bet has been matched
+                        // { 
+                        //     this.nextphase();
+                        // } 
+
 
                         // if (this.toact == this.lastbet-1) // TODO: condition when bet has been matched
                         // { 
@@ -224,6 +230,7 @@ class Yeehaw {
         this.phase = 0;
         this.winner = {};
         this.board = [];
+        this.checkCounter = 0
         this.button++;
         this.button = this.button % this.players.length; // make sure it loops around
         this.smallblind = (this.button + 1) % this.players.length;
@@ -324,17 +331,20 @@ class Yeehaw {
         this.board.push(this.deck.pop());
         this.board.push(this.deck.pop());
         this.currentBet = 0;
+        this.checkCounter = 0
         this.findFirstToAct(); 
     }
 
     turn(){
         this.board.push(this.deck.pop());
+        this.checkCounter = 0
         this.currentBet = 0;
         this.findFirstToAct();
     }
 
     river(){
         this.board.push(this.deck.pop());
+        this.checkCounter = 0
         this.currentBet = 0;
         this.findFirstToAct();
     }
