@@ -16,6 +16,8 @@ class Player {
     isWinner = false;
     hand1 = {};
     hand2 = {};
+    isInvested = false
+    investment = 0
     best = []; // best 5 cards
     constructor(name){
         this.name = name;
@@ -143,8 +145,13 @@ class Yeehaw {
 
                 case "CALL":
                     if (action.value == this.currentBet){
-                        this.players[action.playerIndex].stack -= this.currentBet;
-                        this.pot += this.currentBet;
+                        if(this.players[action.playerIndex].investment != 0){
+                            this.pot = this.pot + (this.currentBet - this.players[action.playerIndex].investment)
+                            this.players[action.playerIndex].stack =  this.players[action.playerIndex].stack - (this.currentBet - this.players[action.playerIndex].investment);
+                        }else{
+                            this.players[action.playerIndex].stack -= this.currentBet;
+                            this.pot += this.currentBet;
+                        }
                         this.toact = this.notfolded[(this.notfolded.indexOf(this.toact) + 1) % this.notfolded.length]
                         if (this.toact == this.lastbet) // TODO: condition when bet has been matched
                         { 
@@ -152,6 +159,7 @@ class Yeehaw {
                         } 
                         return { result: "CALL", isValid: true, playerIndex: action.playerIndex, value: action.value };
                     } else if (action.value >= this.players[action.playerIndex].stack){
+                        
                         this.pot += this.players[action.playerIndex].stack;
                         this.players[action.playerIndex].stack = 0; // player's bet makes him go all in
                         this.toact = this.notfolded[(this.notfolded.indexOf(this.toact) + 1) % this.notfolded.length]
@@ -185,6 +193,8 @@ class Yeehaw {
                             this.toact = this.notfolded[(this.notfolded.indexOf(this.toact) + 1) % this.notfolded.length]
                             return { result: "ALL IN", isValid: true, playerIndex: action.playerIndex, value: action.value };
                         } else if (action.value >= this.currentBet + this.bb) {
+                        
+                            this.players[action.playerIndex].investment = action.value
                             this.pot += action.value;
                             this.players[action.playerIndex].stack -= action.value; // deduct bet from player stack
                             this.currentBet = action.value; 
@@ -269,9 +279,15 @@ class Yeehaw {
     // for next betting phase (pre-flop, flop, turn, river, showdown), condition for each
     nextphase() {
         this.phase++;
+        this.currentBet = 0;
+        this.checkCounter = 0
+        for(let i = 0; i<this.players.length; i ++){
+            players[i].investment = 0
+        }
         switch (this.phase){
             case 1:
                 this.flop(); // 3 cards to board
+                
                 break;
             case 2:
                 this.turn(); // 1 card to board
@@ -329,23 +345,17 @@ class Yeehaw {
     flop(){
         this.board.push(this.deck.pop()); // too lazy to make this a for loop
         this.board.push(this.deck.pop());
-        this.board.push(this.deck.pop());
-        this.currentBet = 0;
-        this.checkCounter = 0
+        this.board.push(this.deck.pop());  
         this.findFirstToAct(); 
     }
 
     turn(){
         this.board.push(this.deck.pop());
-        this.checkCounter = 0
-        this.currentBet = 0;
         this.findFirstToAct();
     }
 
     river(){
         this.board.push(this.deck.pop());
-        this.checkCounter = 0
-        this.currentBet = 0;
         this.findFirstToAct();
     }
 
