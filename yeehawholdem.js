@@ -504,10 +504,10 @@ class Yeehaw {
         if(tied.length>1){
             for( i = 0; tied.length-1; i++){
                 for(j=0;j<tied[i].bestFive.length;j++){
-                    total1 += showdowners[i].bestFive[j].val
+                    total1 += tied[i].bestFive[j].val
                 }
                 for(j=0;j<tied[i].bestFive.length;j++){
-                    total2 += showdowners[i+1].bestFive[j].val
+                    total2 += tied[i+1].bestFive[j].val
                 }
                 if(total1>total2){
                     temp = i
