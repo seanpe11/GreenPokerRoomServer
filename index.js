@@ -44,6 +44,7 @@ io.on('connection', (socket) => {
       player = players[alreadyplaying];
       player.playerPos = alreadyplaying;
       io.to(socket.id).emit('JOIN_CONFIRM', player)
+      io.emit('PLAYER_JOIN', player)
       console.log("PLAYER REJOIN");
       io.emit('TOAST', "Player " + player.name + " rejoined the table.");
 

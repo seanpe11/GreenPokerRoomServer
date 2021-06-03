@@ -117,8 +117,13 @@ class Yeehaw {
                         this.nextphase();
                         return { result: "CHECK", isValid: true, playerIndex: action.playerIndex, value: action.value };
                     } else if (this.currentBet == 0 ) {
+<<<<<<< HEAD
                         
                         if (this.toact == this.lastbet) // TODO: condition when bet has been matched
+=======
+                        this.toact = this.notfolded[(this.notfolded.indexOf(this.toact) + 1) % this.notfolded.length]
+                        if (this.toact == this.lastbet + 1) // TODO: condition when bet has been matched
+>>>>>>> 07cf367f47456c2e496e26308ce0eb31721d5e2c
                         { 
                             this.nextphase();
                         } 
