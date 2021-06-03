@@ -503,23 +503,15 @@ class Yeehaw {
         split = 0
 
         if(tied.length>1){
-            for( i = 0; tied.length-1; i++){
-                for(j=0;j<tied[i].bestFive.length;j++){
-                    total1 += tied[i].bestFive[j].val
-                }
-                for(j=0;j<tied[i].bestFive.length;j++){
-                    total2 += tied[i+1].bestFive[j].val
-                }
-                if(total1>total2){
+            highest = 0;
+            for( i = 0; tied.length; i++){
+                if(tied[i].bestFive[0].val > highest){
                     temp = i
-                    break;
-                }else if(total1<total2){
-                    temp=i+1
-                    break;
-                }else{
-                    split = 1
-                   
+                    highest = tied[i].bestFive[0].val;
                 }
+            }
+            if (tied[0].bestFive[0].val == tied[1].bestFive[0].val){
+                split = 1;
             }
             if(split == 1){
                     this.players[this.notfolded[split]].stack += this.pot/2
