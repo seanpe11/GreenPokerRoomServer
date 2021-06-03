@@ -489,7 +489,7 @@ class Yeehaw {
             sevencards.splice(0, sevencards.length)
         }
 
-        let highest =0
+        let highest = 0
         for(i=0;i<showdowners.length;i++){
             if(showdowners[i].score > highest){
                 temp = i
@@ -501,10 +501,11 @@ class Yeehaw {
             return val.score ==  highest
         })
         split = 0
+        console.log(tied);
 
         if(tied.length>1){
             highest = 0;
-            for( i = 0; tied.length; i++){
+            for( i = 0; i<tied.length; i++){
                 if(tied[i].bestFive[0].val > highest){
                     temp = i
                     highest = tied[i].bestFive[0].val;
@@ -514,10 +515,10 @@ class Yeehaw {
                 split = 1;
             }
             if(split == 1){
-                    this.players[this.notfolded[split]].stack += this.pot/2
-                    this.players[this.notfolded[split + 1]].stack += this.pot/2
-                    console.log("STACK 1 " + this.players[this.notfolded[split]].stack)
-                    console.log("STACK 2 " + this.players[this.notfolded[split+1 % this.notfolded.length]].stack)
+                    this.players[this.notfolded[temp]].stack += this.pot/2
+                    this.players[this.notfolded[temp + 1]].stack += this.pot/2
+                    console.log("STACK 1 " + this.players[this.notfolded[temp]].stack)
+                    console.log("STACK 2 " + this.players[this.notfolded[temp+1 % this.notfolded.length]].stack)
             }else{
                 this.players[this.notfolded[temp]].isWinner = true
                 this.players[this.notfolded[temp]].stack += this.pot
