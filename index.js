@@ -81,7 +81,7 @@ io.on('connection', (socket) => {
 
   socket.on("NEW_ROUND", () => {
     game.newRound();
-    socket.emit('UPDATE_GAME', game);
+    io.emit('UPDATE_GAME', game);
   })
 
   socket.on('RESET_GAME', data => {
