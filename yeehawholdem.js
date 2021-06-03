@@ -489,13 +489,14 @@ class Yeehaw {
             sevencards.splice(0, sevencards.length)
         }
 
-        for(i=0;i<showdowners.length-1;i++){
-            if(showdowners[i].score > showdowners[i+1].score){
+        let highest =0
+        for(i=0;i<showdowners.length;i++){
+            if(showdowners[i].score > highest){
                 temp = i
+                highest = showdowners[i].score
             }
         }
-
-        let highest = showdowners[temp].score
+        
         let tied = showdowners.filter((val)=>{
             return val.score ==  highest
         })
