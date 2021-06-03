@@ -499,7 +499,7 @@ class Yeehaw {
         let tied = showdowners.filter((val)=>{
             return val.score ==  highest
         })
-        let split = 0
+        split = 0
 
         if(tied.length>1){
             for( i = 0; tied.length-1; i++){
